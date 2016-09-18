@@ -41,11 +41,5 @@ public class JsEngine {
 		}
 		return null;
 	}
-	public static void main(String[] args) throws ScriptException {
-		JsEngine.engine.put("aa","12");
-		//JsEngine.engine.pu
-		System.out.println(evel("aa>=12"));
-		System.out.println(evel("('a,a,b,a'.split(',').length-1)==3"));
-		System.out.println(evel(" ['a','b','c'].in_array('a')"));
-	}
+	
 }

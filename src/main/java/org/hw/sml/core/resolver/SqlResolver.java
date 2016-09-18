@@ -1,8 +1,7 @@
 package org.hw.sml.core.resolver;
 
+import org.hw.sml.model.SMLParams;
 import org.hw.sml.support.el.El;
-
-import com.eastcom_sw.inas.core.service.jdbc.SqlParams;
 
 /**
  * 定义sql语句解析父类
@@ -18,7 +17,7 @@ public interface SqlResolver{
 	 * @param sql     sql
 	 * @return
 	 */
-	public Rst resolve(String dialect, String sql,SqlParams sqlParamMaps);
+	public Rst resolve(String dialect, String sql,SMLParams smlParams);
 	void setEl(El el);
 	
 }

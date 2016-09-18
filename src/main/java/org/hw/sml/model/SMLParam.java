@@ -13,6 +13,16 @@ public class SMLParam implements Serializable{
 	 */
 	private static final long serialVersionUID = -5335788865766697965L;
 
+	
+	public SMLParam() {
+		super();
+	}
+
+	public SMLParam(String name, Object value) {
+		super();
+		this.name = name;
+		this.value = value;
+	}
 	private String name;
 	
 	private String type="char";//类型[date,char,number,array]

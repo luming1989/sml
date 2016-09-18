@@ -19,7 +19,7 @@ import javax.xml.bind.Unmarshaller;
  */
 public class JAXBTools {
 
-	public static Object unmarshal(Object xmlReader,Class... cs) throws JAXBException{
+	public static Object unmarshal(Object xmlReader,Class<?>... cs) throws JAXBException{
 		Reader reader=null;
 		Object obj=null;
 		Unmarshaller shaller=null;
@@ -38,7 +38,7 @@ public class JAXBTools {
 		return obj;
 	}
 
-	public static void marshal(Object jaxbElement,Object type,Class... cs) throws JAXBException{
+	public static void marshal(Object jaxbElement,Object type,Class<?>... cs) throws JAXBException{
 		Marshaller shaller=null;
 		if(jaxbElement==null) throw new IllegalArgumentException("the jaxbElement is not null");
 		JAXBContext jc = JAXBContext.newInstance(cs);

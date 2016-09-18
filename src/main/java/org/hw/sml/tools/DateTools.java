@@ -257,9 +257,6 @@ public class DateTools {
 			return parse(mathers.get(index));
 		}
 	}
-	public static void main(String[] args) {
-		//System.out.println(buildTime(trunc(addDays(new Date(),-1),Calendar.DAY_OF_MONTH),trunc(addDays(new Date(),-0),Calendar.DAY_OF_MONTH),"yyyy-MM-dd HH:mm:ss",10));
-		System.out.println(parseFromString("afddsfa_20160718-1557.dat","\\d{8}-\\d{4}",0));
-	}
+	
 	
 }

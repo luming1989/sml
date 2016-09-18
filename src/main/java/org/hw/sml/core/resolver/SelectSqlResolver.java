@@ -3,18 +3,17 @@ package org.hw.sml.core.resolver;
 
 import java.util.List;
 
+import org.hw.sml.model.SMLParams;
 import org.hw.sml.support.el.El;
-
-import com.eastcom_sw.inas.core.service.jdbc.SqlParams;
-import com.eastcom_sw.inas.core.service.tools.Assert;
-import com.eastcom_sw.inas.core.service.tools.RegexUtils;
+import org.hw.sml.tools.Assert;
+import org.hw.sml.tools.RegexUtils;
 /**
  * 
  * @author hw
  * 后续处理：增加数据库
  */
 public class SelectSqlResolver implements SqlResolver{
-	public synchronized Rst resolve(String dialect, String temp,SqlParams sqlParamMaps) {
+	public synchronized Rst resolve(String dialect, String temp,SMLParams sqlParamMaps) {
 		List<String> mathers=null;
 		//单个sql，反复出现的逻辑选择
 		mathers=RegexUtils.matchGroup("<select\\d* id=\"\\w+\">",temp);
@@ -45,7 +44,6 @@ public class SelectSqlResolver implements SqlResolver{
 	
 
 
-	@Override
 	public void setEl(El el) {
 		
 	}

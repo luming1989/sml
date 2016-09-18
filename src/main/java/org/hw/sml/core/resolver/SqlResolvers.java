@@ -3,9 +3,8 @@ package org.hw.sml.core.resolver;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hw.sml.model.SMLParams;
 import org.hw.sml.support.el.El;
-
-import com.eastcom_sw.inas.core.service.jdbc.SqlParams;
 
 public class SqlResolvers {
 	
@@ -30,11 +29,11 @@ public class SqlResolvers {
 		sqlResolvers.add(sqlResolver);
 	}
 	
-	public synchronized Rst resolverLinks(String sql,SqlParams sqlParams){
+	public synchronized Rst resolverLinks(String sql,SMLParams smlParams){
 		List<Object> paramsObject=new ArrayList<Object>();
 		for(SqlResolver sqlResolver:sqlResolvers){
 			sqlResolver.setEl(el);
-			Rst subRst=sqlResolver.resolve(null, sql,sqlParams);
+			Rst subRst=sqlResolver.resolve(null, sql,smlParams);
 			sql=subRst.getSqlString();
 			if(subRst.getParamObjects()!=null&&subRst.getParamObjects().size()>0){
 				paramsObject.addAll(subRst.getParamObjects());

@@ -5,12 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.hw.sml.FrameworkConstant;
+import org.hw.sml.model.SMLParam;
+import org.hw.sml.model.SMLParams;
 import org.hw.sml.support.el.El;
-
-import com.eastcom_sw.inas.core.service.jdbc.SqlParam;
-import com.eastcom_sw.inas.core.service.jdbc.SqlParams;
-import com.eastcom_sw.inas.core.service.tools.Assert;
-import com.eastcom_sw.inas.core.service.tools.RegexUtils;
+import org.hw.sml.tools.Assert;
+import org.hw.sml.tools.RegexUtils;
 /**
  * 解析sql获取绑定参数，减少数据库消耗
  * @author hw
@@ -18,14 +17,14 @@ import com.eastcom_sw.inas.core.service.tools.RegexUtils;
  */
 public class ParamSqlResolver implements SqlResolver{
 
-	public Rst resolve(String dialect, String temp,SqlParams sqlParamMaps) {
+	public Rst resolve(String dialect, String temp,SMLParams sqlParamMaps) {
 		List<Object> paramObjects= new ArrayList<Object>();
 		List<String> mathers=null;
 		//用于绑定参数，时间类处理相对简单，对数据库压力也减少
 		mathers=RegexUtils.matchGroup("#\\w*#",temp);
 		for(String mather:mathers){
 			String property=mather.substring(1, mather.length()-1);
-			SqlParam sp=sqlParamMaps.getSqlParam(property);
+			SMLParam sp=sqlParamMaps.getSmlParam(property);
 			Assert.notNull(sp, property+" is not configed for param build");
 			Assert.notNull(sp.getValue(), property+" is  configed  but is null!");
 			int size=add(paramObjects,sp.getValue());
@@ -35,13 +34,13 @@ public class ParamSqlResolver implements SqlResolver{
 		mathers=RegexUtils.matchGroup("\\$\\w*\\$",temp);
 		for(String mather:mathers){
 			String property=mather.substring(1, mather.length()-1);
-			SqlParam sp=sqlParamMaps.getSqlParam(property);
+			SMLParam sp=sqlParamMaps.getSmlParam(property);
 			Assert.notNull(sp, property+" is not configed for param build");
 			temp=temp.replace(mather, sp.getValue()+"");
 		}
 		//减少对日志长度的限制，虽然不美观，不过值得
 		temp=temp.replace("\n"," ").trim();
-		if(sqlParamMaps.getSqlParam(FrameworkConstant.PARAM_SQLFORMAT)==null||!sqlParamMaps.getSqlParam(FrameworkConstant.PARAM_SQLFORMAT).getValue().equals("false")){
+		if(sqlParamMaps.getSmlParam(FrameworkConstant.PARAM_SQLFORMAT)==null||!sqlParamMaps.getSmlParam(FrameworkConstant.PARAM_SQLFORMAT).getValue().equals("false")){
 				temp=temp.replaceAll("\\s{2,}"," ");
 		}
 		
@@ -72,9 +71,7 @@ public class ParamSqlResolver implements SqlResolver{
 		}
 	}
 	
-	@Override
 	public void setEl(El el) {
-		// TODO Auto-generated method stub
 		
 	}
 	

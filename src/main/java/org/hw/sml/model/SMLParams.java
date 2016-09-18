@@ -57,5 +57,12 @@ public class SMLParams implements Serializable{
 		this.mapParams = mapParams;
 	}
 	
+	public static SMLParams newSMLParams(){
+		return new SMLParams();
+	}
+	public SMLParams add(String key,Object value){
+		 getSmlParams().add(new SMLParam(key,value));
+		 return this;
+	}
 	
 }

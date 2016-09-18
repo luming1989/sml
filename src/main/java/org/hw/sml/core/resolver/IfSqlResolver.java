@@ -2,12 +2,11 @@ package org.hw.sml.core.resolver;
 
 import java.util.List;
 
+import org.hw.sml.model.SMLParam;
+import org.hw.sml.model.SMLParams;
 import org.hw.sml.support.el.El;
-
-import com.eastcom_sw.inas.core.service.jdbc.SqlParam;
-import com.eastcom_sw.inas.core.service.jdbc.SqlParams;
-import com.eastcom_sw.inas.core.service.tools.Assert;
-import com.eastcom_sw.inas.core.service.tools.RegexUtils;
+import org.hw.sml.tools.Assert;
+import org.hw.sml.tools.RegexUtils;
 /**
  * 复杂逻辑的实现
  * 改变sql走向，借鉴mybatis ibaits语法  不引入ognl xml语法，而是自己实现
@@ -19,7 +18,7 @@ import com.eastcom_sw.inas.core.service.tools.RegexUtils;
 public class IfSqlResolver implements SqlResolver{
 	
 	private El el;
-	public Rst resolve(String dialect, String temp,SqlParams sqlParamMaps) {
+	public Rst resolve(String dialect, String temp,SMLParams sqlParamMaps) {
 		List<String> mathers=null;
 		//非空函数   \\d*用于嵌套
 		mathers=RegexUtils.matchGroup("<isNotEmpty\\d* property=\"\\w+\">",temp);
@@ -40,7 +39,7 @@ public class IfSqlResolver implements SqlResolver{
 			//内容
 			String content=RegexUtils.subString(tm,">",("</"+mark+">"));
 			Assert.notRpeatMark(content,mark);
-			SqlParam sp=sqlParamMaps.getSqlParam(property);
+			SMLParam sp=sqlParamMaps.getSmlParam(property);
 			Assert.notNull(sp, property+" is not config for "+mark);
 			boolean flag=sp!=null?(sp.getValue()!=null&&String.valueOf(sp.getValue()).length()>0):false;
 			if(flag){
@@ -64,7 +63,7 @@ public class IfSqlResolver implements SqlResolver{
 			String property=RegexUtils.subString(tm,"property=\"","\">");
 			String content=RegexUtils.subString(tm,">",("</"+mark+">"));
 			Assert.notRpeatMark(content,mark);
-			SqlParam sp=sqlParamMaps.getSqlParam(property);
+			SMLParam sp=sqlParamMaps.getSmlParam(property);
 			Assert.notNull(sp, property+" is not config for "+mark);
 			boolean flag=sp==null?true:(sp.getValue()==null||String.valueOf(sp.getValue()).length()==0);
 			if(flag){
@@ -89,7 +88,7 @@ public class IfSqlResolver implements SqlResolver{
 			String value=RegexUtils.subString(tm,"compareValue=\"","\">");
 			String content=RegexUtils.subString(tm,">",("</"+mark+">"));
 			Assert.notRpeatMark(content,mark);
-			SqlParam sp=sqlParamMaps.getSqlParam(property);
+			SMLParam sp=sqlParamMaps.getSmlParam(property);
 			Assert.notNull(sp, property+" is not config for "+mark);
 			boolean flag=sp==null?false:(value.equals(sp.getValue()));
 			if(flag){
