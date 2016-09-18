@@ -1,2 +1,0 @@
-# sml
-sql markup language
