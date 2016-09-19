@@ -7,7 +7,7 @@ import org.hw.sml.support.el.JsEl;
 import org.junit.Test;
 
 
-public class SMLTmpleateDemo {
+public class SMLTemplateDemo {
 	static String sql="select * from table t where 1=1 <isNotEmpty property=\"a\"> and t.a=#a#</isNotEmpty><isNotEmpty property=\"b\"> and t.b in(#b#)</isNotEmpty><if test=\" '@c'!='vv' \"> and t.c like '%'||#c#||'%'</if>";
 	@Test
 	public void smltest() {
