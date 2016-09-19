@@ -16,13 +16,13 @@ public class FrameworkConstant {
 	public static Logger logger=LoggerFactory.getLogger(FrameworkConstant.class);
 	
 	public static String CFG_JDBC_INFO="cfg_jdbc_info.properties";
-	public static String CFG_JDBC_SQL="select id,mainsql,rebuild_info jsonrebuildparammap,condition_info jsonconditionmap,cache_enabled iscache,cache_minutes cacheminutes,db_id dbid from  DM_CO_BA_CFG_RCPT_IF where id=?";
+	public static String CFG_JDBC_SQL="select id,mainsql,rebuild_info,condition_info,cache_enabled,cache_minutes,db_id  from  DM_CO_BA_CFG_RCPT_IF where id=?";
 	
 	public static String CFG_REPORT_SQL="select id id,rcpt_name as tablename,name description,db_id from DM_CO_BA_CFG_RCPT where id=?";
 	
 	public static String CFG_REPORT_DETAIL_SQL="select rcpt_id as table_id,kpi_name_en as field_name,kpi_name_ch as field_name_zn,format,field_type,id as order_index,length,for_insert,for_update,for_import,for_import_update,for_query,is_query from DM_CO_BA_CFG_RCPT_DETAIL where rcpt_id=? and enabled=1 order by id";
 	
-	public static String CFG_DEFAULT_BUILDER_CLASS="com.eastcom_sw.inas.core.service.jdbc.build.lmaps";
+	public static String CFG_DEFAULT_BUILDER_CLASS="org.hw.sml.core.build.lmaps";
 	
 	public static final String PARAM_TOLOWERCASEFORKEY="toLowerCaseForKey";
 	public static final String PARAM_SQLFORMAT="formatSql";

@@ -129,6 +129,9 @@ public class SMLParam implements Serializable{
 	}
 
 	public void handlerValue(String value2) {
+		if(value2==null){
+			return;
+		}
 		if(this.type.equals("date")){
 			this.value=DateTools.parse(value2);
 		}else if(this.type.equals("array")){

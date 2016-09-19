@@ -115,6 +115,7 @@ public class IfSqlResolver implements SqlResolver{
 			//对text内容进行处理
 			//参数报错直接跳出，减少对数据库的压力
 			boolean flag=false;
+			Assert.notNull(el, "not support elp [el object is null!]");
 			try {
 				flag = el.parser(text,sqlParamMaps.getMap());
 			} catch (Exception e) {//

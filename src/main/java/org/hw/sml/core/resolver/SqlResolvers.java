@@ -13,6 +13,9 @@ public class SqlResolvers {
 	private List<SqlResolver> extResolvers=new ArrayList<SqlResolver>();
 	
 	private List<SqlResolver> sqlResolvers;
+	public SqlResolvers(){
+
+	}
 	public SqlResolvers(El el){
 		this.el=el;
 	}
