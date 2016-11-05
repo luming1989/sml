@@ -83,4 +83,23 @@ public class ClassUtil {
     public static void main(String[] args) {
 		System.out.println(getClassPath());
 	}
+    @SuppressWarnings("rawtypes")
+	public static Object convertValueToRequiredType(Object value, Class requiredType) {
+		if (String.class.equals(requiredType)) {
+			return value.toString();
+		}
+		else if (Number.class.isAssignableFrom(requiredType)) {
+			if (value instanceof Number) {
+				return NumberUtils.convertNumberToTargetClass(((Number) value), requiredType);
+			}
+			else {
+				return NumberUtils.parseNumber(value.toString(), requiredType);
+			}
+		}
+		else {
+			throw new IllegalArgumentException(
+					"Value [" + value + "] is of type [" + value.getClass().getName() +
+					"] and cannot be converted to required type [" + requiredType.getName() + "]");
+		}
+	}
 }

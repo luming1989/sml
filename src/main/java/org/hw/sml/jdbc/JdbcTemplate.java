@@ -8,9 +8,11 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 
+import org.hw.sml.tools.ClassUtil;
 import org.hw.sml.tools.MapUtils;
 import org.hw.sml.tools.NumberUtils;
 
@@ -19,7 +21,7 @@ public class JdbcTemplate extends JdbcAccessor{
 		Connection con = DataSourceUtils.getConnection(getDataSource());
 		Statement stmt = null;
 		try{
-		stmt = con.createStatement();
+		stmt = con.createStatement(); 
 		stmt.execute(sql);
 		}catch(SQLException  e){
 			throw e;
@@ -58,7 +60,7 @@ public class JdbcTemplate extends JdbcAccessor{
 	@SuppressWarnings("unchecked")
 	public <T> T queryForObject(String sql,Object[] params,Class<T> clazz) throws SQLException{
 		Map<String,Object> result=queryForMap(sql, params);
-		return (T) convertValueToRequiredType(result.get(result.keySet().iterator().next()),clazz);
+		return (T) ClassUtil.convertValueToRequiredType(result.get(result.keySet().iterator().next()),clazz);
 		
 	}
 	public <T> List<T> query(String sql,Object[] params,RowMapper<T> rowMapper) throws SQLException{
@@ -67,8 +69,9 @@ public class JdbcTemplate extends JdbcAccessor{
 		ResultSet rs=null;
 		try{
 			stmt=con.prepareStatement(sql);
-			for(int i=0;i<params.length;i++)
-			stmt.setObject(i, params[i]);
+			for(int i=0;i<params.length;i++){
+				setPreparedState(stmt, i+1,params[i]);
+			}
 			rs=stmt.executeQuery(sql);
 			int i=0;
 			List<T> result=MapUtils.newArrayList();
@@ -146,22 +149,22 @@ public class JdbcTemplate extends JdbcAccessor{
 		}
 		return name;
 	}
-	protected Object convertValueToRequiredType(Object value, Class requiredType) {
-		if (String.class.equals(requiredType)) {
-			return value.toString();
-		}
-		else if (Number.class.isAssignableFrom(requiredType)) {
-			if (value instanceof Number) {
-				return NumberUtils.convertNumberToTargetClass(((Number) value), requiredType);
+	public static void setPreparedState(PreparedStatement pst,int i,Object val) throws SQLException{
+		if(val==null){
+			pst.setNull(i,Types.NULL);
+		}else if(val instanceof String){
+			String str=String.valueOf(val);
+			if(str.length()==0){
+				pst.setNull(i,Types.NULL);
+			}else{
+				pst.setString(i, String.valueOf(val));
 			}
-			else {
-				return NumberUtils.parseNumber(value.toString(), requiredType);
-			}
-		}
-		else {
-			throw new IllegalArgumentException(
-					"Value [" + value + "] is of type [" + value.getClass().getName() +
-					"] and cannot be converted to required type [" + requiredType.getName() + "]");
+		}else if(val instanceof Integer){
+			pst.setInt(i,Integer.parseInt(String.valueOf(val)));
+		}else if(val instanceof Float){
+			pst.setFloat(i,Float.parseFloat(String.valueOf(val)));
+		}else{
+			pst.setObject(i,val);
 		}
 	}
 }
