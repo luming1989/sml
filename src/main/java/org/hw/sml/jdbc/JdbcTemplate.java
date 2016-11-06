@@ -1,5 +1,6 @@
 package org.hw.sml.jdbc;
 
+import java.io.StringWriter;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
@@ -7,72 +8,172 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
+import org.hw.sml.tools.Assert;
 import org.hw.sml.tools.ClassUtil;
 import org.hw.sml.tools.MapUtils;
-import org.hw.sml.tools.NumberUtils;
 
 public class JdbcTemplate extends JdbcAccessor{
-	public void execute(String sql) throws SQLException{
-		Connection con = DataSourceUtils.getConnection(getDataSource());
-		Statement stmt = null;
+	public JdbcTemplate(){}
+	public JdbcTemplate(DataSource dataSource){
+		super.dataSource=dataSource;
+	}
+	
+	public int update(String sql,Object[] params){
+		Connection con=null;
+		PreparedStatement pst = null;
+		int result=0;
 		try{
-		stmt = con.createStatement(); 
-		stmt.execute(sql);
+			con =DataSourceUtils.getConnection(getDataSource());
+			pst = con.prepareStatement(sql);
+			if(params!=null){
+				for(int i=0;i<params.length;i++){
+					setPreparedState(pst, i+1,params[i]);
+				}
+			}
+			result=pst.executeUpdate();
 		}catch(SQLException  e){
-			throw e;
+			e.printStackTrace();
 		}finally{
 			try{
-				if(stmt!=null){
-					stmt.close();
+				if(pst!=null){
+					pst.close();
 				}
 			}catch(Exception e){
+				e.printStackTrace();
+			}finally{
+				DataSourceUtils.releaseConnection();
+			}
+		}
+		return result;
+	}
+	public int[] batchUpdate(String sql,List<Object[]> objs){
+		Connection con=null;
+		PreparedStatement pst = null;
+		try {
+			con=DataSourceUtils.getConnection(getDataSource());
+			pst=con.prepareStatement(sql);
+			for(int i=0;i<objs.size();i++){
+				Object[] params=objs.get(i);
+				for(int j=0;j<params.length;j++){
+					setPreparedState(pst, j+1, params[j]);
+				}
+				pst.addBatch();
+			}
+			int[] result=pst.executeBatch();
+			return result;
+		} catch (SQLException e) {
+			Assert.isTrue(false, e.getMessage());
+		}finally{
+			try{
+				if(pst!=null)
+					pst.close();
+			}catch(Exception e){
+				
 			}
 			DataSourceUtils.releaseConnection();
 		}
+		return null;
 	}
-	public <T> T queryForObject(String sql,Object[] params,RowMapper<T> rowMapper) throws SQLException{
+	public <T> T query(String sql, Object[] params, ResultSetExtractor<T> rset) {
+		Connection con=null;
+		PreparedStatement pst = null;
+		ResultSet rs=null;
+		try {
+			con =DataSourceUtils.getConnection(getDataSource());
+			pst = con.prepareStatement(sql);
+			if(params!=null){
+				for(int i=0;i<params.length;i++){
+					setPreparedState(pst, i+1,params[i]);
+				}
+			}
+			rs=pst.executeQuery();
+			return rset.extractData(rs);
+		} catch (SQLException e) {
+			Assert.isTrue(false, e.getMessage());
+		}finally{
+			try{
+				if(rs!=null)
+				rs.close();
+				if(pst!=null)
+				pst.close();
+			}catch(Exception e){
+				
+			}finally{
+				DataSourceUtils.releaseConnection();
+			}
+		}
+		
+		return null;
+	}
+	public int update(String sql){
+		return update(sql,null);
+	}
+	public <T> T queryForObject(String sql,Object[] params,RowMapper<T> rowMapper){
 		List<T> result=query(sql, params, rowMapper);
 		if(result.size()==0){
-			throw new SQLException("not exists objects");
+			Assert.isTrue(false,"not exists objects");
 		}
 		if(result.size()>1){
-			throw new SQLException("has more objects");
+			Assert.isTrue(false,"has more objects");
 		}
 		return result.get(0);
 	}
-	public int queryForInt(String sql,Object[] params) throws SQLException{
+	public int queryForInt(String sql,Object[] params){
 		return queryForObject(sql, params, Integer.class);
 	}
-	public long queryForLong(String sql,Object[] params) throws SQLException{
+	
+	public long queryForLong(String sql,Object[] params) {
 		return queryForObject(sql, params, Long.class);
 	}
-	public Map<String,Object> queryForMap(String sql,Object[] params) throws SQLException{
+	public Map<String,Object> queryForMap(String sql,Object[] params){
 		return queryForObject(sql, params, new MapRowMapper());
 	}
-	public List<Map<String,Object>> queryForList(String sql,Object[] params) throws SQLException{
+	public List<Map<String,Object>> queryForList(String sql,Object[] params){
 		return query(sql, params,new MapRowMapper());
 	}
 	@SuppressWarnings("unchecked")
-	public <T> T queryForObject(String sql,Object[] params,Class<T> clazz) throws SQLException{
+	public <T> T queryForObject(String sql,Object[] params,Class<T> clazz){
 		Map<String,Object> result=queryForMap(sql, params);
 		return (T) ClassUtil.convertValueToRequiredType(result.get(result.keySet().iterator().next()),clazz);
-		
 	}
-	public <T> List<T> query(String sql,Object[] params,RowMapper<T> rowMapper) throws SQLException{
-		Connection con = DataSourceUtils.getConnection(getDataSource());
+	public <T> List<T> queryForList(String sql,Object[] params,Class<T> clazz) throws SQLException{
+		List<Map<String,Object>> trs=queryForList(sql, params);
+		List<T> result=MapUtils.newArrayList();
+		for(Map<String,Object> tr:trs){
+			result.add((T)ClassUtil.convertValueToRequiredType(tr.get(tr.keySet().iterator().next()),clazz));
+		}
+		return result;
+	}
+	interface BatchPreparedStatementSetter{
+		void setValues(PreparedStatement ps, int i) throws SQLException;
+		int getBatchSize();
+	}
+	public void execute(String sql) throws SQLException{
+		execute(sql,null);
+	}
+	public void execute(String sql,Object[] params){
+		update(sql, params);
+	}
+	public <T> List<T> query(String sql,Object[] params,RowMapper<T> rowMapper){
+		Connection con = null;
 		PreparedStatement stmt = null;
 		ResultSet rs=null;
 		try{
+			con = DataSourceUtils.getConnection(getDataSource());
 			stmt=con.prepareStatement(sql);
-			for(int i=0;i<params.length;i++){
-				setPreparedState(stmt, i+1,params[i]);
+			if(params!=null){
+				for(int i=0;i<params.length;i++){
+					setPreparedState(stmt, i+1,params[i]);
+				}
 			}
-			rs=stmt.executeQuery(sql);
+			rs=stmt.executeQuery();
 			int i=0;
 			List<T> result=MapUtils.newArrayList();
 			while(rs.next()){
@@ -81,7 +182,8 @@ public class JdbcTemplate extends JdbcAccessor{
 			}
 			return result;
 		}catch(SQLException e){
-			throw e;
+			e.printStackTrace();
+			Assert.isTrue(false, e.getMessage());
 		}finally{
 			try{
 				if(stmt!=null){
@@ -92,6 +194,7 @@ public class JdbcTemplate extends JdbcAccessor{
 			}
 			DataSourceUtils.releaseConnection();
 		}
+		return null;
 	}
 	class MapRowMapper implements  RowMapper<Map<String,Object>> {
 		public Map<String, Object> mapRow(ResultSet rs, int rowNum)
@@ -149,22 +252,34 @@ public class JdbcTemplate extends JdbcAccessor{
 		}
 		return name;
 	}
-	public static void setPreparedState(PreparedStatement pst,int i,Object val) throws SQLException{
-		if(val==null){
-			pst.setNull(i,Types.NULL);
-		}else if(val instanceof String){
-			String str=String.valueOf(val);
-			if(str.length()==0){
-				pst.setNull(i,Types.NULL);
-			}else{
-				pst.setString(i, String.valueOf(val));
-			}
-		}else if(val instanceof Integer){
-			pst.setInt(i,Integer.parseInt(String.valueOf(val)));
-		}else if(val instanceof Float){
-			pst.setFloat(i,Float.parseFloat(String.valueOf(val)));
-		}else{
-			pst.setObject(i,val);
+	public static void setPreparedState(PreparedStatement ps,int paramIndex,Object inValue) throws SQLException{
+		if(inValue==null){
+			ps.setNull(paramIndex,Types.NULL);
+		}else if (isStringValue(inValue.getClass())) {
+			ps.setString(paramIndex, inValue.toString());
+		}
+		else if (isDateValue(inValue.getClass())) {
+			ps.setTimestamp(paramIndex, new java.sql.Timestamp(((java.util.Date) inValue).getTime()));
+		}
+		else if (inValue instanceof Calendar) {
+			Calendar cal = (Calendar) inValue;
+			ps.setTimestamp(paramIndex, new java.sql.Timestamp(cal.getTime().getTime()), cal);
+		}
+		else {
+			ps.setObject(paramIndex, inValue);
 		}
 	}
+	private static boolean isStringValue(Class inValueType) {
+		// Consider any CharSequence (including StringBuffer and StringBuilder) as a String.
+		return (CharSequence.class.isAssignableFrom(inValueType) ||
+				StringWriter.class.isAssignableFrom(inValueType));
+	}
+	private static boolean isDateValue(Class inValueType) {
+		return (java.util.Date.class.isAssignableFrom(inValueType) &&
+				!(java.sql.Date.class.isAssignableFrom(inValueType) ||
+						java.sql.Time.class.isAssignableFrom(inValueType) ||
+						java.sql.Timestamp.class.isAssignableFrom(inValueType)));
+	}
+
+	
 }

@@ -30,8 +30,11 @@ public class DataSourceUtils {
 				conn.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
+			}finally{
+				connections.remove();
 			}
 		}
 	}
+	
 
 }
