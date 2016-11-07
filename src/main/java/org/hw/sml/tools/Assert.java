@@ -33,6 +33,6 @@ public class Assert {
 		}
 	}
 	public static void main(String[] args) {
-		notRpeatMark("aaa</if>","if");
+		notRpeatMark("aaa</if11>","if11");
 	}
 }

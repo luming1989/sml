@@ -19,183 +19,29 @@ import org.hw.sml.tools.Assert;
 import org.hw.sml.tools.ClassUtil;
 import org.hw.sml.tools.MapUtils;
 
-public class JdbcTemplate extends JdbcAccessor{
+public abstract class JdbcTemplate extends JdbcAccessor{
 	public JdbcTemplate(){}
 	public JdbcTemplate(DataSource dataSource){
 		super.dataSource=dataSource;
 	}
 	
-	public int update(String sql,Object[] params){
-		Connection con=null;
-		PreparedStatement pst = null;
-		int result=0;
-		try{
-			con =DataSourceUtils.getConnection(getDataSource());
-			pst = con.prepareStatement(sql);
-			if(params!=null){
-				for(int i=0;i<params.length;i++){
-					setPreparedState(pst, i+1,params[i]);
-				}
-			}
-			result=pst.executeUpdate();
-		}catch(SQLException  e){
-			e.printStackTrace();
-		}finally{
-			try{
-				if(pst!=null){
-					pst.close();
-				}
-			}catch(Exception e){
-				e.printStackTrace();
-			}finally{
-				DataSourceUtils.releaseConnection();
-			}
-		}
-		return result;
-	}
-	public int[] batchUpdate(String sql,List<Object[]> objs){
-		Connection con=null;
-		PreparedStatement pst = null;
-		try {
-			con=DataSourceUtils.getConnection(getDataSource());
-			pst=con.prepareStatement(sql);
-			for(int i=0;i<objs.size();i++){
-				Object[] params=objs.get(i);
-				for(int j=0;j<params.length;j++){
-					setPreparedState(pst, j+1, params[j]);
-				}
-				pst.addBatch();
-			}
-			int[] result=pst.executeBatch();
-			return result;
-		} catch (SQLException e) {
-			Assert.isTrue(false, e.getMessage());
-		}finally{
-			try{
-				if(pst!=null)
-					pst.close();
-			}catch(Exception e){
-				
-			}
-			DataSourceUtils.releaseConnection();
-		}
-		return null;
-	}
-	public <T> T query(String sql, Object[] params, ResultSetExtractor<T> rset) {
-		Connection con=null;
-		PreparedStatement pst = null;
-		ResultSet rs=null;
-		try {
-			con =DataSourceUtils.getConnection(getDataSource());
-			pst = con.prepareStatement(sql);
-			if(params!=null){
-				for(int i=0;i<params.length;i++){
-					setPreparedState(pst, i+1,params[i]);
-				}
-			}
-			rs=pst.executeQuery();
-			return rset.extractData(rs);
-		} catch (SQLException e) {
-			Assert.isTrue(false, e.getMessage());
-		}finally{
-			try{
-				if(rs!=null)
-				rs.close();
-				if(pst!=null)
-				pst.close();
-			}catch(Exception e){
-				
-			}finally{
-				DataSourceUtils.releaseConnection();
-			}
-		}
-		
-		return null;
-	}
-	public int update(String sql){
-		return update(sql,null);
-	}
-	public <T> T queryForObject(String sql,Object[] params,RowMapper<T> rowMapper){
-		List<T> result=query(sql, params, rowMapper);
-		if(result.size()==0){
-			Assert.isTrue(false,"not exists objects");
-		}
-		if(result.size()>1){
-			Assert.isTrue(false,"has more objects");
-		}
-		return result.get(0);
-	}
-	public int queryForInt(String sql,Object[] params){
-		return queryForObject(sql, params, Integer.class);
-	}
+	public abstract int update(String sql,Object[] params);
+	public abstract  int[] batchUpdate(String sql,List<Object[]> objs);
+	public  abstract <T> T query(String sql, Object[] params, ResultSetExtractor<T> rset);
+	public abstract  int update(String sql);
+	public abstract  <T> T queryForObject(String sql,Object[] params,RowMapper<T> rowMapper);
+	public abstract  int queryForInt(String sql,Object[] params);
 	
-	public long queryForLong(String sql,Object[] params) {
-		return queryForObject(sql, params, Long.class);
-	}
-	public Map<String,Object> queryForMap(String sql,Object[] params){
-		return queryForObject(sql, params, new MapRowMapper());
-	}
-	public List<Map<String,Object>> queryForList(String sql,Object[] params){
-		return query(sql, params,new MapRowMapper());
-	}
+	public abstract  long queryForLong(String sql,Object[] params);
+	public abstract  Map<String,Object> queryForMap(String sql,Object[] params);
+	public abstract  List<Map<String,Object>> queryForList(String sql,Object[] params);
 	@SuppressWarnings("unchecked")
-	public <T> T queryForObject(String sql,Object[] params,Class<T> clazz){
-		Map<String,Object> result=queryForMap(sql, params);
-		return (T) ClassUtil.convertValueToRequiredType(result.get(result.keySet().iterator().next()),clazz);
-	}
-	public <T> List<T> queryForList(String sql,Object[] params,Class<T> clazz) throws SQLException{
-		List<Map<String,Object>> trs=queryForList(sql, params);
-		List<T> result=MapUtils.newArrayList();
-		for(Map<String,Object> tr:trs){
-			result.add((T)ClassUtil.convertValueToRequiredType(tr.get(tr.keySet().iterator().next()),clazz));
-		}
-		return result;
-	}
-	interface BatchPreparedStatementSetter{
-		void setValues(PreparedStatement ps, int i) throws SQLException;
-		int getBatchSize();
-	}
-	public void execute(String sql) throws SQLException{
-		execute(sql,null);
-	}
-	public void execute(String sql,Object[] params){
-		update(sql, params);
-	}
-	public <T> List<T> query(String sql,Object[] params,RowMapper<T> rowMapper){
-		Connection con = null;
-		PreparedStatement stmt = null;
-		ResultSet rs=null;
-		try{
-			con = DataSourceUtils.getConnection(getDataSource());
-			stmt=con.prepareStatement(sql);
-			if(params!=null){
-				for(int i=0;i<params.length;i++){
-					setPreparedState(stmt, i+1,params[i]);
-				}
-			}
-			rs=stmt.executeQuery();
-			int i=0;
-			List<T> result=MapUtils.newArrayList();
-			while(rs.next()){
-				T t=rowMapper.mapRow(rs,i++);
-				result.add(t);
-			}
-			return result;
-		}catch(SQLException e){
-			e.printStackTrace();
-			Assert.isTrue(false, e.getMessage());
-		}finally{
-			try{
-				if(stmt!=null){
-					rs.close();
-					stmt.close();
-				}
-			}catch(Exception e){
-			}
-			DataSourceUtils.releaseConnection();
-		}
-		return null;
-	}
+	public abstract  <T> T queryForObject(String sql,Object[] params,Class<T> clazz);
+	public abstract  <T> List<T> queryForList(String sql,Object[] params,Class<T> clazz) throws SQLException;
+	
+	public abstract  void execute(String sql) throws SQLException;
+	public abstract  void execute(String sql,Object[] params);
+	public  abstract <T> List<T> query(String sql,Object[] params,RowMapper<T> rowMapper);
 	class MapRowMapper implements  RowMapper<Map<String,Object>> {
 		public Map<String, Object> mapRow(ResultSet rs, int rowNum)
 				throws SQLException {
