@@ -1,6 +1,8 @@
 package org.hw.sml.tools;
 
 import java.net.URL;
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +53,17 @@ public class ClassUtil {
         }
         return cls;
     }
-
+    @SuppressWarnings("unchecked")
+   	public static <T> T newInstance(String classpath,Class<T> clazz){
+       	try {
+   			return (T)loadClass(classpath).newInstance();
+   		} catch (InstantiationException e) {
+   			e.printStackTrace();
+   		} catch (IllegalAccessException e) {
+   			e.printStackTrace();
+   		}
+       	return null;
+       }
     /**
      * 是否为 int 类型（包括 Integer 类型）
      */
@@ -95,11 +107,9 @@ public class ClassUtil {
 			else {
 				return NumberUtils.parseNumber(value.toString(), requiredType);
 			}
+		}else{
+			return value;
 		}
-		else {
-			throw new IllegalArgumentException(
-					"Value [" + value + "] is of type [" + value.getClass().getName() +
-					"] and cannot be converted to required type [" + requiredType.getName() + "]");
-		}
+		
 	}
 }
