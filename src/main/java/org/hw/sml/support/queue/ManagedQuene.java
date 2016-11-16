@@ -90,6 +90,7 @@ public class ManagedQuene {
 		protected void doWorkProcess() {
 			Task task=null;
 			ExecutorService exec=null;
+			Future<Integer> future=null;
 			try {
 				task=queue.take();
 				final Task t=task;
@@ -104,11 +105,13 @@ public class ManagedQuene {
 							return new Inner(t).exe();
 						}
 					};
-					Future<Integer> future=exec.submit(call);
+					future=exec.submit(call);
 					future.get(timeout, TimeUnit.SECONDS);
 				}
 			}  catch (TimeoutException e) {
 				logger.warn("task[{}] timeout!",task.toString());
+				if(future!=null)
+				future.cancel(true);
 			}catch (Exception e) {
 				logger.info(getErrorMsg(),e.toString());
 			}finally{

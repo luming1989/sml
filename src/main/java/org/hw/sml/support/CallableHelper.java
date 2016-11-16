@@ -74,14 +74,18 @@ public class CallableHelper {
 					rs.add(results.get(i).get(1,TimeUnit.MICROSECONDS));
 				} catch (InterruptedException e) {
 					rs.add(null);
+					results.get(i).cancel(true);
 				} catch (ExecutionException e) {
 					rs.add(null);
+					results.get(i).cancel(true);
 				} catch (TimeoutException e) {
 					rs.add(null);
+					results.get(i).cancel(true);
 				}catch(Throwable e){
 					e.printStackTrace();
 					rs.add(null);
 					e.toString();
+					results.get(i).cancel(true);
 				}
 			}
 		}
