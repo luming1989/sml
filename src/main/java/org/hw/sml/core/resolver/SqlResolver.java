@@ -18,6 +18,7 @@ public interface SqlResolver{
 	 * @return
 	 */
 	public Rst resolve(String dialect, String sql,SMLParams smlParams);
+	
 	void setEl(El el);
 	
 }
