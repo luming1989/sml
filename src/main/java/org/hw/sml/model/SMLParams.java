@@ -58,14 +58,16 @@ public class SMLParams implements Serializable{
 	}
 	
 	public SMLParams add(String key,Object value){
-		 getSmlParams().add(new SMLParam(key,value));
+		 SMLParam sml=new SMLParam(key,value);
+		 getSmlParams().add(sml);
 		 return this;
 	}
 	public SMLParams add(String key,String value,String type){
 		SMLParam sml=new SMLParam(key,value);
 		sml.setType(type);
-		 getSmlParams().add(sml);
-		 return this;
+		getSmlParams().add(sml);
+		sml.handlerValue(value);
+		return this;
 	}
 	
 }

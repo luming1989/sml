@@ -132,25 +132,29 @@ public class SMLParam implements Serializable{
 		if(value2==null){
 			return;
 		}
-		if(this.type.equals("date")){
-			this.value=DateTools.parse(value2);
-		}else if(this.type.equals("array")){
-			this.value=buildStr(value2);
-		}else if(this.type.equals("array-char")||this.type.equals("array_char")){
-			this.value=value2.split(split);
-		}else if(this.type.equals("array-date")||this.type.equals("array_date")){
+		this.value=convertValue(this.type, value2);
+	}
+	public Object convertValue(String typev,String value2){
+		Object result=null;
+		if(typev.equals("date")){
+			result=DateTools.parse(value2);
+		}else if(typev.equals("array")){
+			result=buildStr(value2);
+		}else if(typev.equals("array-char")||typev.equals("array_char")){
+			result=value2.split(split);
+		}else if(typev.equals("array-date")||typev.equals("array_date")){
 			String vs[]=value2.split(split);
 			Object[] objs=new Object[vs.length];
 			for(int i=0;i<vs.length;i++){
 				objs[i]=DateTools.parse(vs[i]);
 			}
-			this.value=objs;
-		}else if(this.type.equals("timestamp")){
-			this.value=new Timestamp(DateTools.parse(value2).getTime());
+			result=objs;
+		}else if(typev.equals("timestamp")){
+			result=new Timestamp(DateTools.parse(value2).getTime());
 		}else{
-			this.value=value2;
+			result=value2;
 		}
-		
+		return result;
 	}
 	
 	private String buildStr(String val){
