@@ -75,6 +75,7 @@ public class BeanHelper {
 							
 						}else{
 							Field field=ClassUtil.getField(bean.getClass(),fieldName);
+							Assert.notNull(field, "bean["+beanName+"-"+bean.getClass()+"] has not field["+fieldName+"]");
 							field.setAccessible(true);
 							if(fieldType==null)
 								field.set(bean,ClassUtil.convertValueToRequiredType(et.getValue(), field.getType()));
@@ -100,10 +101,12 @@ public class BeanHelper {
 					String methodName=et.getValue();
 					if(k.equals("init-method")){
 						final Method method=ClassUtil.getMethod(bean.getClass(),methodName);
+						Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not method["+methodName+"]");
 						method.setAccessible(true);
 						method.invoke(bean,new Object[]{});
 					}else if(k.equals("stop-method")){
 						final Method method=ClassUtil.getMethod(bean.getClass(),methodName);
+						Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not method["+methodName+"]");
 						method.setAccessible(true);
 						Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 							public void run() {
@@ -156,7 +159,7 @@ public class BeanHelper {
 						}
 						filed.setAccessible(true);
 						Object v= beanMap.get(injectName)==null?beanMap.get(filed.getName()):beanMap.get(injectName);
-						Assert.notNull(v, "beanName:"+beanName+",field inject ["+filed.getName()+"] v is null");
+						Assert.notNull(v, "beanName:["+beanName+"-"+bean.getClass()+"],field inject ["+filed.getName()+"] v is null");
 						filed.set(beanMap.get(beanName),v);
 					}
 				}
@@ -175,9 +178,9 @@ public class BeanHelper {
 							continue;
 						}
 						String configName=config.value();
-						Assert.notNull(configName, "beanName:"+beanName+",field config"+filed.getName()+" is null");
+						Assert.notNull(configName, "beanName:"+beanName+"-"+bean.getClass()+",field config "+filed.getName()+" is null");
 						filed.setAccessible(true);
-						Assert.notNull(FrameworkConstant.getProperty(configName), "beanName:"+beanName+",field value"+filed.getName()+" is null");
+						Assert.notNull(FrameworkConstant.getProperty(configName), "beanName:["+beanName+"-"+bean.getClass()+"],field value "+filed.getName()+" is null");
 						filed.set(beanMap.get(beanName),ClassUtil.convertValueToRequiredType(FrameworkConstant.getProperty(configName),filed.getType()));
 					}
 				}

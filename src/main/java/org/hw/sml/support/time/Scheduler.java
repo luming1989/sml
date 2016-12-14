@@ -18,10 +18,11 @@ public class Scheduler implements Plugin{
 	
 	private boolean fixedRate=false;
 	
+	
 	public Scheduler(){
 		this.timer=new Timer();
 		if(firstTime==null){
-			firstTime=DateTools.trunc(DateTools.addMinutes(new Date(),1),1000);
+				firstTime=DateTools.trunc(DateTools.addMinutes(new Date(),1),1000);
 		}
 	}
 	
@@ -85,5 +86,6 @@ public class Scheduler implements Plugin{
 	public void setFixedRate(boolean fixedRate) {
 		this.fixedRate = fixedRate;
 	}
+
 	
 }
