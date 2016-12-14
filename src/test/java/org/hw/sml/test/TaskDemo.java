@@ -24,9 +24,8 @@ public class TaskDemo {
 			 return count+"";
 		 }
 		public synchronized void execute() throws Exception {
-			int i=count++;
-			Thread.sleep(i*1000);
-			System.out.println(i);
+			Thread.sleep(count*1000);
+			System.out.println(count++);
 		}
 		
 	}

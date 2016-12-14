@@ -11,15 +11,12 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.hw.sml.tools.ClassUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 用于获取类的模板类
  * 
  */
 public abstract class ClassTemplate {
-	 private static final Logger logger = LoggerFactory.getLogger(ClassTemplate.class);
 
 	    protected final String packageName;
 
@@ -54,7 +51,6 @@ public abstract class ClassTemplate {
 	                }
 	            }
 	        } catch (Exception e) {
-	            logger.error("获取类出错！", e);
 	        }
 	        return classList;
 	    }
@@ -89,7 +85,6 @@ public abstract class ClassTemplate {
 	                }
 	            }
 	        } catch (Exception e) {
-	            logger.error("添加类出错！", e);
 	        }
 	    }
 

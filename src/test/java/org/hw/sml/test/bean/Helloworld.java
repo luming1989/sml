@@ -1,0 +1,28 @@
+package org.hw.sml.test.bean;
+
+import org.hw.sml.support.ioc.annotation.Bean;
+import org.hw.sml.support.ioc.annotation.Val;
+
+@Bean
+public class Helloworld {
+	
+	@Val("CFG_DEFAULT_DIALECT")
+	private String name;
+	
+	@Val("CFG_JDBC_SQL")
+	private String value;
+	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getValue() {
+		return value;
+	}
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
+}

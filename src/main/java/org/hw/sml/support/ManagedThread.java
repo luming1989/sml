@@ -1,12 +1,7 @@
 package org.hw.sml.support;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 public abstract class ManagedThread extends Thread {
 
-	protected  Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected boolean stopFlag = false;
 
@@ -29,10 +24,10 @@ public abstract class ManagedThread extends Thread {
 	abstract protected boolean extraExitCondition();
 
 	public void run() {
-		logger.info(this.getName() + " started ...");
+		LoggerHelper.info(getClass(),this.getName() + " started ...");
 
 		if (!prepare()) {
-			logger.error(this.getName() + " prepare failure , thread exit ...");
+			LoggerHelper.error(getClass(),this.getName() + " prepare failure , thread exit ...");
 			return;
 		}
 
@@ -40,7 +35,7 @@ public abstract class ManagedThread extends Thread {
 			doWorkProcess();
 		}
 		cleanup();
-		logger.info(this.getName() + " stopped ...");
+		LoggerHelper.info(getClass(),this.getName() + " stopped ...");
 	}
 
 	/**

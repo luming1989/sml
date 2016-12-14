@@ -54,6 +54,9 @@ public class DateTools {
 			cal.set(Calendar.MINUTE, 0);
 			cal.set(Calendar.MILLISECOND, 0);
 			cal.set(Calendar.DAY_OF_WEEK,2);
+		}else if(type==1000){
+			cal.set(Calendar.MILLISECOND, 0);
+			cal.set(Calendar.SECOND, 0);
 		}
 		return cal.getTime();
 	}

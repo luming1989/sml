@@ -1,16 +1,14 @@
 package org.hw.sml.core.resolver;
 
 import java.io.InputStreamReader;
+import java.util.logging.Logger;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class JsEngine {
-	public static Logger logger=LoggerFactory.getLogger(JsEngine.class);
+	public static Logger logger=Logger.getLogger("");
 	private static ScriptEngine engine;
 	static{
 		 ScriptEngineManager manager = new ScriptEngineManager();
@@ -37,7 +35,7 @@ public class JsEngine {
 			return engine.eval(msg);
 		} catch (ScriptException e) {
 			e.printStackTrace();
-			logger.error("msg[{}]",msg);
+			logger.info("msg["+msg+"]");
 		}
 		return null;
 	}

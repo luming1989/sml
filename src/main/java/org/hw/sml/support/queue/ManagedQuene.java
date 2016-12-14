@@ -11,16 +11,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.hw.sml.support.LoggerHelper;
 import org.hw.sml.support.ManagedThread;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 /**
  * quene managed
  * @author wen
  *
  */
 public class ManagedQuene {
-	public Logger logger=LoggerFactory.getLogger(getClass());
 	/**
 	 * 队列管理名称
 	 */
@@ -58,7 +56,7 @@ public class ManagedQuene {
 	public  void init(){
 		if(queue==null){
 			queue=new ArrayBlockingQueue<Task>(depth);
-			logger.info("manageName [{}] has init depth {} !",getManageName(),depth);
+			LoggerHelper.info(getClass(),"manageName ["+getManageName()+"] has init depth "+depth+" !");
 		}
 		for(int i=1;i<=consumerThreadSize;i++){
 			Execute execute=new Execute();
@@ -79,7 +77,7 @@ public class ManagedQuene {
 	public void add(Task task){
 		queue.add(task);
 		if(!ignoreLog)
-			logger.info("add {} total-{},current-{}.",getManageName(),getDepth(),queue.size());
+			LoggerHelper.info(getClass(),"add "+getManageName()+" total-"+getDepth()+",current-"+queue.size()+".");
 			
 	}
 	
@@ -94,8 +92,6 @@ public class ManagedQuene {
 			try {
 				task=queue.take();
 				final Task t=task;
-				if(!ignoreLog)
-				logger.info("{} total-{},current-{}.",getManageName(),getDepth(),queue.size());
 				if(timeout<=0)
 					task.execute();
 				else{
@@ -109,11 +105,11 @@ public class ManagedQuene {
 					future.get(timeout, TimeUnit.SECONDS);
 				}
 			}  catch (TimeoutException e) {
-				logger.warn("task[{}] timeout!",task.toString());
+				LoggerHelper.info(getClass(),"task["+task.toString()+"] timeout!");
 				if(future!=null)
 				future.cancel(true);
 			}catch (Exception e) {
-				logger.info(getErrorMsg(),e.toString());
+				LoggerHelper.error(getClass(),getErrorMsg());
 			}finally{
 				if(exec!=null)
 					exec.shutdown();

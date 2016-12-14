@@ -3,8 +3,7 @@ package org.hw.sml;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hw.sml.support.LoggerHelper;
 
 public class FrameworkConstant {
 	public static enum Type{
@@ -13,9 +12,8 @@ public class FrameworkConstant {
 		FRAMEWORK_CFG_REPORT_DETAIL_SQL,
 		FRAMEWORK_CFG_DEFAULT_BUILDER_CLASS
 	}
-	public static Logger logger=LoggerFactory.getLogger(FrameworkConstant.class);
 	
-	public static String CFG_JDBC_INFO="cfg_jdbc_info.properties";
+	public static String CFG_JDBC_INFO="sml.properties";
 	public static String CFG_JDBC_SQL="select id,mainsql,rebuild_info,condition_info,cache_enabled,cache_minutes,db_id  from  DM_CO_BA_CFG_RCPT_IF where id=?";
 	
 	public static String CFG_REPORT_SQL="select id id,rcpt_name as tablename,name description,db_id from DM_CO_BA_CFG_RCPT where id=?";
@@ -57,6 +55,7 @@ public class FrameworkConstant {
 	}
 	
 	public static Properties properties=new Properties();
+	public static Properties otherProperties=new Properties();
 	static {
 		try{
 			InputStream is=FrameworkConstant.class.getClassLoader().getResourceAsStream(CFG_JDBC_INFO);
@@ -66,12 +65,25 @@ public class FrameworkConstant {
 			reset("CFG_REPORT_DETAIL_SQL");
 			reset("CFG_DEFAULT_BUILDER_CLASS");
 		}catch(Exception e){
-			logger.error("FrameworkConstant can't found, use default config !");
+			LoggerHelper.error(FrameworkConstant.class,"FrameworkConstant can't found, use default config !");
+		}
+		try{
+			String propertyFilesStr=properties.getProperty("file-properties");
+			if(propertyFilesStr!=null){
+				for(String file:propertyFilesStr.split(",")){
+					otherProperties.load(FrameworkConstant.class.getClassLoader().getResourceAsStream(file));
+					LoggerHelper.info(FrameworkConstant.class,"load properties--->"+file);
+				}
+			}
+		}catch(Exception e){
 		}
 	}
 	static void reset(String key){
 		String value=String.valueOf(properties.get(key));
 		String defaultValue="";
+		if(value==null||value.trim().length()==0||value.equals("null")){
+			return;
+		}
 		if(key.equals("CFG_JDBC_SQL")){
 			defaultValue=CFG_JDBC_SQL;
 		}else if(key.equals("CFG_REPORT_SQL")){
@@ -82,7 +94,7 @@ public class FrameworkConstant {
 			defaultValue=CFG_DEFAULT_BUILDER_CLASS;
 		}
 		if(value==null){
-			logger.warn(key+" is null used default --->[{}]",defaultValue);
+			LoggerHelper.warn(FrameworkConstant.class,key+" is null used default --->["+defaultValue+"]");
 		}else{
 			if(key.equals("CFG_JDBC_SQL")){
 				CFG_JDBC_SQL=value;
@@ -93,7 +105,15 @@ public class FrameworkConstant {
 			}else if(key.equals("CFG_DEFAULT_BUILDER_CLASS")){
 				CFG_DEFAULT_BUILDER_CLASS=value;
 			}
-			logger.warn(key+" is  reset used it --->[{}]",value);
+			LoggerHelper.warn(FrameworkConstant.class,key+" is  reset used it --->["+value+"]");
 		}
+	}
+	public static String getProperty(String key){
+		String result=null;
+		result=properties.getProperty(key);
+		if(result==null){
+			result=otherProperties.getProperty(key);
+		}
+		return result;
 	}
 }
