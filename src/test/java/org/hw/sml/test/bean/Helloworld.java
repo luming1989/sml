@@ -1,9 +1,10 @@
 package org.hw.sml.test.bean;
 
 import org.hw.sml.support.ioc.annotation.Bean;
+import org.hw.sml.support.ioc.annotation.Init;
 import org.hw.sml.support.ioc.annotation.Val;
 
-@Bean
+@Bean("hwld")
 public class Helloworld {
 	
 	@Val("CFG_DEFAULT_DIALECT")
@@ -24,5 +25,8 @@ public class Helloworld {
 	public void setValue(String value) {
 		this.value = value;
 	}
-	
+	@Init
+	private void i(){
+		System.out.println(name+"---->"+value);
+	}
 }

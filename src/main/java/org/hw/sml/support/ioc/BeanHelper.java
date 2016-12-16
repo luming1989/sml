@@ -28,9 +28,11 @@ public class BeanHelper {
 		try {
 			String packageName=FrameworkConstant.getProperty("ioc-bean-scan");
 			List<Class<?>> classes=MapUtils.newArrayList();
-			for(String pn:packageName.split(",| ")){
-				List<Class<?>> cls=ClassHelper.getClassListByAnnotation(pn, Bean.class);
-				classes.addAll(cls);
+			if(packageName!=null){
+				for(String pn:packageName.split(",| ")){
+					List<Class<?>> cls=ClassHelper.getClassListByAnnotation(pn, Bean.class);
+					classes.addAll(cls);
+				}
 			}
 			//对属性文件bean读取解析
 			Enumeration<Object> keys=FrameworkConstant.otherProperties.keys();
@@ -41,6 +43,7 @@ public class BeanHelper {
 				}
 				String beanName=key.replace("bean-","");
 				Object bean=ClassUtil.newInstance(MapUtils.transMapFromStr(FrameworkConstant.getProperty(key)).get("class"));
+				Assert.isTrue(!beanMap.containsKey(beanName),"bean["+beanName+"-"+bean.getClass()+"] name is conflict!");
 				beanMap.put(beanName,bean);
 				propertyInitBeanMap.put(beanName,bean);
 			}
@@ -75,16 +78,51 @@ public class BeanHelper {
 							
 						}else{
 							Field field=ClassUtil.getField(bean.getClass(),fieldName);
+							if(fieldType!=null&&!fieldType.startsWith("m"))
 							Assert.notNull(field, "bean["+beanName+"-"+bean.getClass()+"] has not field["+fieldName+"]");
+							if(field!=null)
 							field.setAccessible(true);
 							if(fieldType==null)
 								field.set(bean,ClassUtil.convertValueToRequiredType(et.getValue(), field.getType()));
-							else if(fieldType.equals("v"))
+							else if(fieldType.equals("v")){
+								Assert.notNull(FrameworkConstant.getProperty(et.getValue()), "bean["+beanName+"-"+bean.getClass()+"] has not field key["+et.getValue()+"]");
 								field.set(bean,ClassUtil.convertValueToRequiredType(FrameworkConstant.getProperty(et.getValue()), field.getType()));
-							else if(fieldType.equals("b"))
+							}
+							else if(fieldType.equals("b")){
+								Assert.notNull(propertyInitBeanMap.get(et.getValue()),  "bean["+beanName+"-"+bean.getClass()+"] has not field bean["+et.getValue()+"]");
 								field.set(bean,propertyInitBeanMap.get(et.getValue()));
+							}else if(fieldType.equals("m")){
+								String methodName="set"+toUpperForStart(fieldName);
+								Method method=ClassUtil.getMethod(bean.getClass(),methodName);
+								Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not method["+methodName+"] for field["+fieldName+"]!");
+								method.invoke(bean,ClassUtil.convertValueToRequiredType(et.getValue(),method.getGenericParameterTypes()[0].getClass()));
+							}else if(fieldType.equals("mv")){
+								String methodName="set"+toUpperForStart(fieldName);
+								Method method=ClassUtil.getMethod(bean.getClass(),methodName);
+								Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not method["+methodName+"] for field["+fieldName+"]!");
+								method.invoke(bean,ClassUtil.convertValueToRequiredType(FrameworkConstant.getProperty(et.getValue()),method.getGenericParameterTypes()[0].getClass()));
+							}
 							else
 								field.set(bean,ClassUtil.convertValueToRequiredType(et.getValue(), field.getType()));
+						}
+					}else if(k.startsWith("m-")){
+						String[] ktoken=k.split("-");
+						String methodName=ktoken[1];
+						String methodType=ktoken.length==2?null:ktoken[2];
+						if(methodType==null){
+							Method method=ClassUtil.getMethod(bean.getClass(),methodName);
+							Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not method["+methodName+"]!");
+							method.invoke(bean,ClassUtil.convertValueToRequiredType(et.getValue(),method.getGenericParameterTypes()[0].getClass()));
+						}else if(methodType.equals("v")){
+							Method method=ClassUtil.getMethod(bean.getClass(),methodName);
+							Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not method["+methodName+"]!");
+							Assert.notNull(FrameworkConstant.getProperty(et.getValue()), "bean["+beanName+"-"+bean.getClass()+"] has not method params ["+methodName+"] for params bean["+et.getValue()+"]!");
+							method.invoke(bean,ClassUtil.convertValueToRequiredType(FrameworkConstant.getProperty(et.getValue()),method.getGenericParameterTypes()[0].getClass()));
+						}else if(methodType.equals("b")){
+							Method method=ClassUtil.getMethod(bean.getClass(),methodName);
+							Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not method["+methodName+"]!");
+							Assert.notNull(propertyInitBeanMap.get(et.getValue()),  "bean["+beanName+"-"+bean.getClass()+"] has not method ["+methodName+"] for params bean["+et.getValue()+"]");
+							method.invoke(bean,ClassUtil.convertValueToRequiredType(propertyInitBeanMap.get(et.getValue()),method.getGenericParameterTypes()[0].getClass()));
 						}
 					}
 				}
@@ -101,12 +139,12 @@ public class BeanHelper {
 					String methodName=et.getValue();
 					if(k.equals("init-method")){
 						final Method method=ClassUtil.getMethod(bean.getClass(),methodName);
-						Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not method["+methodName+"]");
+						Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not init-method["+methodName+"]");
 						method.setAccessible(true);
 						method.invoke(bean,new Object[]{});
 					}else if(k.equals("stop-method")){
 						final Method method=ClassUtil.getMethod(bean.getClass(),methodName);
-						Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not method["+methodName+"]");
+						Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not stop-method["+methodName+"]");
 						method.setAccessible(true);
 						Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 							public void run() {
@@ -185,26 +223,7 @@ public class BeanHelper {
 					}
 				}
 				//@Init方法
-				for(Class<?> clazz:classes){
-					Bean bean=clazz.getAnnotation(Bean.class);
-					String beanName=bean.value();
-					if(beanName==null||beanName.trim().length()==0){
-						beanName=toLowerForStart(clazz.getSimpleName());
-					}
-					Method[] ms=ClassUtil.getMethods(clazz);
-					List<String> initdMethod=MapUtils.newArrayList();
-					for(Method method:ms){
-						Init init=method.getAnnotation(Init.class);
-						if(init!=null){
-							method.setAccessible(true);
-							if(initdMethod.contains(method.getName())){
-								continue;
-							}
-							method.invoke(beanMap.get(beanName), new Object[]{});
-							initdMethod.add(method.getName());
-						}
-					}
-				}
+				initAnnotationInvoke(classes);
 				//@Stop方法销毁
 				for(Class<?> clazz:classes){
 					Bean bean=clazz.getAnnotation(Bean.class);
@@ -248,6 +267,29 @@ public class BeanHelper {
 		}
 		LoggerHelper.info(BeanHelper.class,"bean initd--->"+beanMap.keySet());
 	}
+	public static void initAnnotationInvoke(List<Class<?>> classes) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException{
+		//@Init方法
+		for(Class<?> clazz:classes){
+			Bean bean=clazz.getAnnotation(Bean.class);
+			String beanName=bean.value();
+			if(beanName==null||beanName.trim().length()==0){
+				beanName=toLowerForStart(clazz.getSimpleName());
+			}
+			Method[] ms=ClassUtil.getMethods(clazz);
+			List<String> initdMethod=MapUtils.newArrayList();
+			for(Method method:ms){
+				Init init=method.getAnnotation(Init.class);
+				if(init!=null){
+					method.setAccessible(true);
+					if(initdMethod.contains(method.getName())){
+						continue;
+					}
+					method.invoke(beanMap.get(beanName), new Object[]{});
+					initdMethod.add(method.getName());
+				}
+			}
+		}
+	}
 	public static int start(){
 		return 1;
 	}
@@ -256,5 +298,8 @@ public class BeanHelper {
 	}
 	private static String toLowerForStart(String name){
 		return name.substring(0,1).toLowerCase()+name.substring(1);
+	}
+	private static String toUpperForStart(String name){
+		return name.substring(0,1).toUpperCase()+name.substring(1);
 	}
 }

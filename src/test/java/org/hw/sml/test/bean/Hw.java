@@ -8,7 +8,7 @@ import org.hw.sml.support.ioc.annotation.Val;
 
 @Bean
 public class Hw {
-	@Inject("helloworld")
+	@Inject("hwld")
 	private Helloworld helloworld;
 	
 	@Inject("car")
@@ -23,7 +23,7 @@ public class Hw {
 	private double height;
 	@Init
 	private void init(){
-		System.out.println(getClass()+"... start");
+		System.out.println(this.toString());
 	}
 	@Stop
 	private void stop(){
@@ -60,6 +60,11 @@ public class Hw {
 	}
 	public void setHeight(double height) {
 		this.height = height;
+	}
+	@Override
+	public String toString() {
+		return "Hw [helloworld=" + helloworld + ", car=" + car + ", carBus="
+				+ carBus + ", age=" + age + ", height=" + height + "]";
 	}
 
 	
