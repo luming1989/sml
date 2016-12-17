@@ -6,8 +6,6 @@ import java.util.Map;
 import org.hw.sml.tools.MapUtils;
 
 public class Group2FieldDataBuilder extends AbstractDataBuilder{
-
-	@Override
 	public Object build(
 			List<Map<String, Object>> datas) {
 		String[] gps=rebuildParam.getGroupname().split(",");

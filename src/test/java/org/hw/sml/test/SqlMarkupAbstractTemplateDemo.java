@@ -47,9 +47,6 @@ public class SqlMarkupAbstractTemplateDemo {
 				objs.add(new Object[]{"","a"});
 			}
 		}
-		//int[] i=jdbcTemplate.batchUpdate("insert into hw_temp values(?,?)", objs);
-		//System.out.println(i.length+"|"+i[0]+"|"+i[1]);
-		//对象
 		SqlMarkupAbstractTemplate jf=new SqlMarkupTemplate();
 		
 		jf.setDss(dss);//
@@ -67,17 +64,8 @@ public class SqlMarkupAbstractTemplateDemo {
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
-			//对象销毁操作
 			jf.destroy();
 		}
-		/*int i=jf.getSmlContextUtils().update("test-update-links", new HashMap<String,String>(){
-			{
-				put("sp_ip","女儿2");
-				put("sp_name","黄丽文");
-				put("sp_name_update","黄楚伊");
-			}
-		});
-		System.out.println(i);*/
 	}
 	public static void main(String[] args) throws SQLException {
 		testQuery();

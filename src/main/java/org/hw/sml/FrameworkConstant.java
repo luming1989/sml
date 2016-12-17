@@ -15,13 +15,9 @@ public class FrameworkConstant {
 	
 	public static String CFG_JDBC_INFO="sml.properties";
 	public static String CFG_JDBC_SQL="select id,mainsql,rebuild_info,condition_info,cache_enabled,cache_minutes,db_id  from  DM_CO_BA_CFG_RCPT_IF where id=?";
-	
 	public static String CFG_REPORT_SQL="select id id,rcpt_name as tablename,name description,db_id from DM_CO_BA_CFG_RCPT where id=?";
-	
 	public static String CFG_REPORT_DETAIL_SQL="select rcpt_id as table_id,kpi_name_en as field_name,kpi_name_ch as field_name_zn,format,field_type,id as order_index,length,for_insert,for_update,for_import,for_import_update,for_query,is_query from DM_CO_BA_CFG_RCPT_DETAIL where rcpt_id=? and enabled=1 order by id";
-	
 	public static String CFG_DEFAULT_BUILDER_CLASS="org.hw.sml.core.build.lmaps";
-	
 	public static final String PARAM_TOLOWERCASEFORKEY="toLowerCaseForKey";
 	public static final String PARAM_SQLFORMAT="formatSql";
 	public static final String PARAM_IGLOG="iglog";
@@ -30,7 +26,6 @@ public class FrameworkConstant {
 	public static final String PARAM_OPLINKS="opLinks";
 	public static final String PARAM_ISREMOTEPRAMS="isRemoteParams";
 	public static boolean isExit=false;
-	
 	public static String getSupportKey(String frameworkMark,Type type){
 		if(type.equals(Type.FRAMEWORK_CFG_JDBC_SQL)){
 			if(frameworkMark.equals("default")){
@@ -54,13 +49,13 @@ public class FrameworkConstant {
 			return null;
 		}
 	}
-	
 	public static Properties properties=new Properties();
 	public static Properties otherProperties=new Properties();
 	static {
 		try{
 			InputStream is=FrameworkConstant.class.getClassLoader().getResourceAsStream(CFG_JDBC_INFO);
 			properties.load(is);
+			otherProperties.load(is);
 			reset("CFG_JDBC_SQL");
 			reset("CFG_REPORT_SQL");
 			reset("CFG_REPORT_DETAIL_SQL");
@@ -80,7 +75,7 @@ public class FrameworkConstant {
 		}
 	}
 	static void reset(String key){
-		String value=String.valueOf(properties.get(key));
+		String value=String.valueOf(getProperty(key));
 		String defaultValue="";
 		if(value==null||value.trim().length()==0||value.equals("null")){
 			return;
@@ -94,27 +89,22 @@ public class FrameworkConstant {
 		}else if(key.equals("CFG_DEFAULT_BUILDER_CLASS")){
 			defaultValue=CFG_DEFAULT_BUILDER_CLASS;
 		}
-		if(value==null){
-			LoggerHelper.warn(FrameworkConstant.class,key+" is null used default --->["+defaultValue+"]");
-		}else{
-			if(key.equals("CFG_JDBC_SQL")){
-				CFG_JDBC_SQL=value;
-			}else if(key.equals("CFG_REPORT_SQL")){
-				CFG_REPORT_SQL=value;
-			}else if(key.equals("CFG_REPORT_DETAIL_SQL")){
-				CFG_REPORT_DETAIL_SQL=value;
-			}else if(key.equals("CFG_DEFAULT_BUILDER_CLASS")){
-				CFG_DEFAULT_BUILDER_CLASS=value;
-			}
-			LoggerHelper.warn(FrameworkConstant.class,key+" is  reset used it --->["+value+"]");
+		if(key.equals("CFG_JDBC_SQL")){
+			CFG_JDBC_SQL=value;
+		}else if(key.equals("CFG_REPORT_SQL")){
+			CFG_REPORT_SQL=value;
+		}else if(key.equals("CFG_REPORT_DETAIL_SQL")){
+			CFG_REPORT_DETAIL_SQL=value;
+		}else if(key.equals("CFG_DEFAULT_BUILDER_CLASS")){
+			CFG_DEFAULT_BUILDER_CLASS=value;
 		}
+		LoggerHelper.warn(FrameworkConstant.class,key+" is  reset used it --->["+value+"]");
 	}
 	public static String getProperty(String key){
 		String result=null;
 		result=properties.getProperty(key);
-		if(result==null){
+		if(result==null)
 			result=otherProperties.getProperty(key);
-		}
 		return result;
 	}
 }

@@ -16,34 +16,31 @@ public class MqClient {
 	
 	private String destinationName;
 	private String mqUrl;
-	Connection connection = null;
 	public void init(){
-		ConnectionFactory connectionFactory;
-        connectionFactory = new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_USER,ActiveMQConnection.DEFAULT_PASSWORD,mqUrl);
-        try {
-        	 connection = connectionFactory.createConnection();
-             connection.start();
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
         
 	}
 	public void send(String msg){
         Session session = null;
         Destination destination;
         MessageProducer producer;
+        ConnectionFactory connectionFactory;
+        Connection connection=null;
         try {
-            session = connection.createSession(Boolean.TRUE,Session.AUTO_ACKNOWLEDGE);
+        	connectionFactory = new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_USER,ActiveMQConnection.DEFAULT_PASSWORD,mqUrl);
+        	connection = connectionFactory.createConnection();
+        	 connection.start();
+            session = connection.createSession(true,Session.AUTO_ACKNOWLEDGE);
             destination = new ActiveMQQueue(destinationName) ;
             producer = session.createProducer(destination);
             producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
     		producer.send(session.createTextMessage(msg));
     		session.commit();
+    		session.close();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
         	 try {
-				session.close();
+        		 connection.close();
 			} catch (JMSException e) {
 				e.printStackTrace();
 			}

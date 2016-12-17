@@ -32,7 +32,4 @@ public class Assert {
 			throw new IllegalArgumentException("not support repeat mark </"+mark+">");
 		}
 	}
-	public static void main(String[] args) {
-		notRpeatMark("aaa</if11>","if11");
-	}
 }
