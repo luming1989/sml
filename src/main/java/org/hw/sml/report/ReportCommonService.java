@@ -28,13 +28,7 @@ import org.hw.sml.support.Source;
  * 
  */
 public class ReportCommonService extends Source{
-	
 	public static final  String CACHE_PRE="report";
-	
-	public void init(){
-		super.init();
-	}
-	
 	public PiTable get(String id) {
 		String key=CACHE_PRE+":"+id+":getPiTable";
 		if(getCacheManager().get(key)!=null){
@@ -127,7 +121,6 @@ public class ReportCommonService extends Source{
 			}
 			LoggerHelper.debug(getClass(),"updates for sql["+sql+"] start["+start+"]-----end["+end+"]");
 		}
-	
 		return count;
 	}
 	//----原始操作结束

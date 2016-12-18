@@ -28,10 +28,6 @@ public class SMLParam implements Serializable{
 	private String type="char";//类型[date,char,number,array]
 	
 	private String encode="utf-8";
-	/**
-	 * 可以为值
-	 * 也可为sql,select开头
-	 */
 	private String defaultValue;
 	
 	private String format;

@@ -229,6 +229,7 @@ public class BeanHelper {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.exit(0);
 		} 
 		LoggerHelper.info(BeanHelper.class,"bean initd--->"+beanMap.keySet());
 	}

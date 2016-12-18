@@ -55,7 +55,6 @@ public class FrameworkConstant {
 		try{
 			InputStream is=FrameworkConstant.class.getClassLoader().getResourceAsStream(CFG_JDBC_INFO);
 			properties.load(is);
-			otherProperties.load(is);
 			reset("CFG_JDBC_SQL");
 			reset("CFG_REPORT_SQL");
 			reset("CFG_REPORT_DETAIL_SQL");
@@ -64,6 +63,8 @@ public class FrameworkConstant {
 			LoggerHelper.error(FrameworkConstant.class,"FrameworkConstant can't found, use default config !");
 		}
 		try{
+			InputStream is=FrameworkConstant.class.getClassLoader().getResourceAsStream(CFG_JDBC_INFO);
+			otherProperties.load(is);
 			String propertyFilesStr=properties.getProperty("file-properties");
 			if(propertyFilesStr!=null){
 				for(String file:propertyFilesStr.split(",")){

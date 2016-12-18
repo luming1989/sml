@@ -10,7 +10,7 @@ public class BeanTest {
 		String match="aaaaa_(.*?)_(.\\d+?)_00021321_(.\\d{1,5}).xml";
 		String[] obj=RegexUtils.matchSubString(match, str);
 		System.out.println(Arrays.asList(obj));*/
-		ICar car=BeanHelper.getBean(ICar.class);
+		ICar car=BeanHelper.getBean(Car.class);
 		car.run();
 	}
 }

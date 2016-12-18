@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ChartParam implements Serializable{
-
 	private static final long serialVersionUID = 8827653897470861361L;
 	private List<String> groupid;
 	private Map<String,String> funcs=new LinkedHashMap<String,String>();
