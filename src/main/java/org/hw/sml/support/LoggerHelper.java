@@ -2,7 +2,7 @@ package org.hw.sml.support;
 
 
 public class LoggerHelper {
-/*	public static  void debug(Class<?> c,String msg){
+	/*public static  void debug(Class<?> c,String msg){
 			org.slf4j.LoggerFactory.getLogger(c).debug(msg);
 	}
 	

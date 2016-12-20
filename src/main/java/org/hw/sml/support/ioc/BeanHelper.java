@@ -24,6 +24,7 @@ import org.hw.sml.tools.MapUtils;
 public class BeanHelper {
 	private static  Map<String,Object> beanMap=MapUtils.newHashMap();
 	private static  Map<String,Object> propertyInitBeanMap=MapUtils.newHashMap();
+	private static Map<String,Boolean> beanErrInfo=MapUtils.newHashMap();
 	static{
 		try {
 			String packageName=getValue("ioc-bean-scan");
@@ -51,8 +52,18 @@ public class BeanHelper {
 				if(classpath.startsWith("[")&&classpath.endsWith("]")){
 					classpath=classpath.substring(1,classpath.length()-1);
 					bean=Array.newInstance(Class.forName(classpath),beanKeyValue.size()-1);
-				}else
-					bean=ClassUtil.newInstance(classpath);
+				}else{
+					if(!Boolean.valueOf(beanKeyValue.get("passErr"))){
+						bean=ClassUtil.newInstance(classpath);
+					}else{
+						try{
+							bean=ClassUtil.newInstance(classpath);
+						}catch(Exception e){
+							e.printStackTrace();
+							beanErrInfo.put(beanName,false);
+						}
+					}
+				}
 				beanMap.put(beanName,bean);
 				propertyInitBeanMap.put(beanName,bean);
 			}
@@ -71,6 +82,9 @@ public class BeanHelper {
 			for(Map.Entry<String,Object> entry:propertyInitBeanMap.entrySet()){
 				String beanName=entry.getKey();
 				Object bean=entry.getValue();
+				if(beanErrInfo.containsKey(beanName)){
+					continue;
+				}
 				//如果bean属于map类
 				Map<String,String> pvs=getBeanKeyValue(beanName);
 				int i=0;
@@ -95,7 +109,7 @@ public class BeanHelper {
 							if(fieldType==null||fieldType.equals("v")||fieldType.equals("b")){
 								Object value=ClassUtil.convertValueToRequiredType(getValue(fieldType,et.getValue()), field.getType());
 								Assert.notNull(value, "bean["+beanName+"-"+bean.getClass()+"] has not field "+fieldType+"["+et.getValue()+"]");
-								field.set(bean,value);
+								field.set(bean,value.equals("")?null:value);
 							}else if(fieldType.equals("m")||fieldType.equals("mv")||fieldType.equals("mb")){
 								String methodName="set"+toUpperForStart(fieldName);
 								Method method=ClassUtil.getMethod(bean.getClass(),methodName);
@@ -103,7 +117,7 @@ public class BeanHelper {
 								Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not method["+methodName+"] for field["+fieldName+"]!");
 								Object value=ClassUtil.convertValueToRequiredType(getValue(fieldType.replace("m",""),et.getValue()),method.getGenericParameterTypes()[0].getClass());
 								Assert.notNull(value, "bean["+beanName+"-"+bean.getClass()+"] has not method["+methodName+"] for field "+fieldType+" params["+et.getValue()+"]!");
-								method.invoke(bean,value);
+								method.invoke(bean,value.equals("")?null:value);
 							}
 							else
 								field.set(bean,ClassUtil.convertValueToRequiredType(et.getValue(), field.getType()));
@@ -116,7 +130,7 @@ public class BeanHelper {
 						Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not method["+methodName+"]!");
 						Object value=ClassUtil.convertValueToRequiredType(getValue(methodType,et.getValue()),method.getGenericParameterTypes()[0].getClass());
 						Assert.notNull(value,"bean["+beanName+"-"+bean.getClass()+"] method ["+methodName+"] for params "+methodType+"["+et.getValue()+"]");
-						method.invoke(bean, value);
+						method.invoke(bean, value.equals("")?null:value);
 					}
 				}
 			}
@@ -143,7 +157,7 @@ public class BeanHelper {
 						filed.setAccessible(true);
 						Object v= beanMap.get(injectName)==null?beanMap.get(filed.getName()):beanMap.get(injectName);
 						Assert.notNull(v, "beanName:["+beanName+"-"+bean.getClass()+"],field inject ["+filed.getName()+"] v is null");
-						filed.set(beanMap.get(beanName),v);
+						filed.set(beanMap.get(beanName),v.equals("")?null:v);
 					}
 				}
 				
@@ -172,6 +186,9 @@ public class BeanHelper {
 			//初始化属性文件配置中方法或注入关闭勾子
 			for(Map.Entry<String,Object> entry:propertyInitBeanMap.entrySet()){
 				String beanName=entry.getKey();
+				if(beanErrInfo.containsKey(beanName)){
+					continue;
+				}
 				final Object bean=entry.getValue();
 				Map<String,String> pvs=getBeanKeyValue(beanName);
 				for(final Map.Entry<String,String> et:pvs.entrySet()){
@@ -181,7 +198,9 @@ public class BeanHelper {
 						final Method method=ClassUtil.getMethod(bean.getClass(),methodName);
 						Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not init-method["+methodName+"]");
 						method.setAccessible(true);
-						method.invoke(bean,new Object[]{});
+						boolean isDelay=Boolean.valueOf(pvs.get("isDelay"));
+						LoggerHelper.info(BeanHelper.class,"beanName["+beanName+"] init-method["+methodName+"] isDelay["+(isDelay?MapUtils.getString(pvs,"sleep","0")+"ms":"false")+"]...");
+						methodInvoke(bean, method, Boolean.valueOf(pvs.get("igErr")), isDelay,Long.parseLong(MapUtils.getString(pvs,"sleep","0")));
 					}else if(k.equals("stop-method")||k.equals("destroy-method")){
 						final Method method=ClassUtil.getMethod(bean.getClass(),methodName);
 						Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not stop-method["+methodName+"]");
@@ -250,8 +269,8 @@ public class BeanHelper {
 					if(initdMethod.contains(method.getName())){
 						continue;
 					}
-					method.invoke(beanMap.get(beanName), new Object[]{});
 					initdMethod.add(method.getName());
+					methodInvoke(beanMap.get(beanName), method, init.igErr(), init.isDelay(), init.sleep());
 				}
 			}
 		}
@@ -281,7 +300,10 @@ public class BeanHelper {
 		}else if(type.equals("v")){
 			return getValue(key);
 		}else if(type.equals("b")){
-			return beanMap.get(key);
+			if(!beanErrInfo.containsKey(key))
+				return beanMap.get(key);
+			else
+				return "";
 		}
 		return key;
 	}
@@ -302,5 +324,31 @@ public class BeanHelper {
 	private static String[] getPorM(String key){
 		String[] pms= key.split("-");
 		return new String[]{pms[0],pms[1],pms.length==3?pms[2]:null};
+	}
+	private static void methodInvoke(final Object bean,final Method method,boolean igErr,boolean isDelay,final long ms) throws Exception{
+		if(isDelay){
+			Thread thread=new Thread(new Runnable(){
+				public void run() {
+					try {
+						Thread.sleep(ms*1000);
+						method.invoke(bean,new Object[]{});
+					} catch (Exception e) {
+						e.printStackTrace();
+					} 
+				}});
+			thread.start();
+			LoggerHelper.info(BeanHelper.class,"bean["+bean.getClass()+"]"+method.getName()+" lazy load sleep "+ms+" ms!");
+		}else{
+			if(igErr){
+				try {
+					method.invoke(bean,new Object[]{});
+				} catch (Exception e) {
+					e.printStackTrace();
+				} 
+			}else{
+				method.invoke(bean,new Object[]{});
+			}
+		}
+		
 	}
 }

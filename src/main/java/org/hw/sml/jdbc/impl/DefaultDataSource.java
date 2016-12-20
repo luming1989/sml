@@ -11,7 +11,6 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import org.hw.sml.FrameworkConstant;
 import org.hw.sml.support.LoggerHelper;
 
 public class DefaultDataSource implements DataSource{
@@ -48,8 +47,13 @@ public class DefaultDataSource implements DataSource{
 			Thread thread=new Thread(new Runnable() {
 				public void run() {
 					try {
-						while(!Thread.interrupted())
-						connections.add(getConnectionFromDriver());
+						while(!Thread.interrupted()){
+							if(connections.size()<initialSize){
+								connections.add(getConnectionFromDriver());
+							}else{
+								Thread.sleep(1000);
+							}
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

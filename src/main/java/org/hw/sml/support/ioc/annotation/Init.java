@@ -7,5 +7,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Init {
-	
+	boolean igErr() default false;
+	boolean isDelay() default false;
+	long sleep() default 0;
 }

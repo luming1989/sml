@@ -6,7 +6,7 @@ import org.hw.sml.support.ioc.annotation.Stop;
 
 @Bean
 public class Car implements ICar{
-	//@Init
+	@Init(isDelay=true,sleep=10)
 	public void run() {
 		System.out.println("car is run...");
 	}

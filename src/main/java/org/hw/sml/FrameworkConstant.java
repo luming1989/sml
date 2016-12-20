@@ -77,18 +77,8 @@ public class FrameworkConstant {
 	}
 	static void reset(String key){
 		String value=String.valueOf(getProperty(key));
-		String defaultValue="";
 		if(value==null||value.trim().length()==0||value.equals("null")){
 			return;
-		}
-		if(key.equals("CFG_JDBC_SQL")){
-			defaultValue=CFG_JDBC_SQL;
-		}else if(key.equals("CFG_REPORT_SQL")){
-			defaultValue=CFG_REPORT_SQL;
-		}else if(key.equals("CFG_REPORT_DETAIL_SQL")){
-			defaultValue=CFG_REPORT_DETAIL_SQL;
-		}else if(key.equals("CFG_DEFAULT_BUILDER_CLASS")){
-			defaultValue=CFG_DEFAULT_BUILDER_CLASS;
 		}
 		if(key.equals("CFG_JDBC_SQL")){
 			CFG_JDBC_SQL=value;

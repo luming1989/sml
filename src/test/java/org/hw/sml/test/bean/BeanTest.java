@@ -11,6 +11,6 @@ public class BeanTest {
 		String[] obj=RegexUtils.matchSubString(match, str);
 		System.out.println(Arrays.asList(obj));*/
 		ICar car=BeanHelper.getBean(Car.class);
-		car.run();
+		//car.run();
 	}
 }
