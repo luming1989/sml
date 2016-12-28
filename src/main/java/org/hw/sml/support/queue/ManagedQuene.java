@@ -60,6 +60,7 @@ public class ManagedQuene {
 		}
 		for(int i=1;i<=consumerThreadSize;i++){
 			Execute execute=new Execute();
+			execute.setDaemon(true);
 			execute.setName(getThreadNamePre()+"-"+i);
 			executes.add(execute);
 			execute.start();

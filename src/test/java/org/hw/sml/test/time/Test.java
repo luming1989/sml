@@ -15,6 +15,7 @@ public class Test {
 	 */
 	public static void main(String[] args) {
 		Scheduler scheduler=new Scheduler();
+		scheduler.cancel();
 	}
 
 }

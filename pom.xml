@@ -75,6 +75,9 @@
 				<includes>
 					<include>**/*.js</include>
 				</includes>
+				<excludes>
+					<exclude>**/*.properties</exclude>
+				</excludes>
 				<filtering>true</filtering>
 			</resource>
 		</resources>

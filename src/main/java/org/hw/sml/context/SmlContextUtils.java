@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -162,8 +163,9 @@ public class SmlContextUtils {
 	public static boolean isNotBlank(Object val) {
 		return val != null && String.valueOf(val).trim().length() > 0;
 	}
+	
 	//--ext
-	public static String queryFromUrl(String contentType,String accept,String url,String requestBody) throws IOException{
+	public static String queryFromUrl(String contentType,String accept,String url,byte[] requestBody) throws IOException{
 		PrintWriter out = null;
         BufferedReader in = null;
         String result = "";
@@ -180,7 +182,7 @@ public class SmlContextUtils {
             conn.setDoInput(true);
             conn.setRequestMethod("POST");
             out = new PrintWriter(conn.getOutputStream());
-            out.print(requestBody);
+            out.print(new String(requestBody));
             out.flush();
             in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
@@ -195,8 +197,11 @@ public class SmlContextUtils {
                 }
         return result;
 	}
-	public static String queryFromUrl(String url,String requestBody) throws IOException{
+	public static String queryFromUrl(String url,byte[] requestBody) throws IOException{
 		return queryFromUrl("application/json;charset=UTF-8", "application/json;charset=UTF-8", url, requestBody);
 	}
-	
+	public static String queryFromUrl(String url,String requestBody) throws IOException{
+		Charset charset=Charset.forName("utf-8");
+		return new String(queryFromUrl(url, requestBody.getBytes(charset)).getBytes(),charset);
+	}
 }

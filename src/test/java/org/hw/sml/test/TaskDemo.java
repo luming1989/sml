@@ -9,7 +9,7 @@ public class TaskDemo {
 		mq.setConsumerThreadSize(3);//处理线程任务数
 		mq.setTimeout(10);//超时s
 		mq.init();
-		for(int i=0;i<30;i++){
+		for(int i=0;i<10;i++){
 			mq.add(new Task1());
 				try {
 					Thread.sleep(10);

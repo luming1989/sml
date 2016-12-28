@@ -98,6 +98,20 @@ public class DateTools {
 		cal.add(Calendar.MINUTE, minutes);
 		return cal.getTime();
 	}
+	public static Date add(int type,Date date,int times){
+		if(type==Calendar.DAY_OF_MONTH){
+			return addDays(date, times);
+		}else if(type==Calendar.YEAR){
+			return addYears(date, times);
+		}else if(type==Calendar.HOUR_OF_DAY){
+			return addHours(date, times);
+		}else if(type==Calendar.MONTH){
+			return addMonths(date, times);
+		}else if(type==Calendar.MINUTE){
+			return addMinutes(date, times);
+		}
+		return date;
+	}
 	public static Date addSeconds(Date date, int seconds) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);

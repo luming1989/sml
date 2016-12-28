@@ -296,12 +296,20 @@ public class BeanHelper {
 	}
 	public static Object getValue(String type,String key){
 		if(type==null){
-			return key;
+			//return key;
 		}else if(type.equals("v")){
 			return getValue(key);
 		}else if(type.equals("b")){
 			if(!beanErrInfo.containsKey(key))
 				return beanMap.get(key);
+			else
+				return "";
+		}
+		if(key.startsWith("${")&&key.endsWith("}")){
+			return getValue(key.substring(2,key.length()-1));
+		}else if(key.startsWith("#{")&&key.endsWith("}")){
+			if(!beanErrInfo.containsKey(key))
+				return beanMap.get(key.substring(2,key.length()-1));
 			else
 				return "";
 		}

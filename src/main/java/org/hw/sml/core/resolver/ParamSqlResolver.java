@@ -42,6 +42,7 @@ public class ParamSqlResolver implements SqlResolver{
 		temp=temp.replace("\n"," ").trim();
 		if(sqlParamMaps.getSmlParam(FrameworkConstant.PARAM_SQLFORMAT)==null||!sqlParamMaps.getSmlParam(FrameworkConstant.PARAM_SQLFORMAT).getValue().equals("false")){
 				temp=temp.replaceAll("\\s{2,}"," ");
+				temp=temp.replace("where 1=1 and","where");//排除索引的影响
 		}
 		
 		return new Rst(temp,paramObjects);

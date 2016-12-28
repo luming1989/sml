@@ -12,7 +12,7 @@ public class FrameworkConstant {
 		FRAMEWORK_CFG_REPORT_DETAIL_SQL,
 		FRAMEWORK_CFG_DEFAULT_BUILDER_CLASS
 	}
-	
+	public static final String VERSION="1.0";
 	public static String CFG_JDBC_INFO="sml.properties";
 	public static String CFG_JDBC_SQL="select id,mainsql,rebuild_info,condition_info,cache_enabled,cache_minutes,db_id  from  DM_CO_BA_CFG_RCPT_IF where id=?";
 	public static String CFG_REPORT_SQL="select id id,rcpt_name as tablename,name description,db_id from DM_CO_BA_CFG_RCPT where id=?";
@@ -66,10 +66,23 @@ public class FrameworkConstant {
 			InputStream is=FrameworkConstant.class.getClassLoader().getResourceAsStream(CFG_JDBC_INFO);
 			otherProperties.load(is);
 			String propertyFilesStr=properties.getProperty("file-properties");
+			String profile=properties.getProperty("sml.profile.active");
 			if(propertyFilesStr!=null){
 				for(String file:propertyFilesStr.split(",")){
-					otherProperties.load(FrameworkConstant.class.getClassLoader().getResourceAsStream(file));
-					LoggerHelper.info(FrameworkConstant.class,"load properties--->"+file);
+					String name=file;
+					InputStream ist=null;
+					try{
+						name=getName(profile,file);
+						ist=FrameworkConstant.class.getClassLoader().getResourceAsStream(name);
+					}catch(Exception e){
+					}finally{
+						if(ist==null){
+							name=file;
+							ist=FrameworkConstant.class.getClassLoader().getResourceAsStream(name);
+						}
+					}
+					otherProperties.load(ist);
+					LoggerHelper.info(FrameworkConstant.class,"load properties--->"+name);
 				}
 			}
 		}catch(Exception e){
@@ -98,4 +111,11 @@ public class FrameworkConstant {
 			result=otherProperties.getProperty(key);
 		return result;
 	}
+	private static String getName(String profile,String name){
+		if(profile==null||profile.length()==0){
+			return name;
+		}
+		return name.substring(0,name.lastIndexOf("."))+"-"+profile+name.substring(name.lastIndexOf("."));
+	}
+	
 }

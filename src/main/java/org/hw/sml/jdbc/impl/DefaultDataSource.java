@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.hw.sml.support.LoggerHelper;
+import org.hw.sml.support.ManagedThread;
 
 public class DefaultDataSource implements DataSource{
 	private String driverClassName;
@@ -40,25 +41,37 @@ public class DefaultDataSource implements DataSource{
 	public boolean isWrapperFor(Class<?> iface) throws SQLException {
 		return false;
 	}
+	class ThreadDaemon extends ManagedThread{
+		protected boolean prepare() {
+			return true;
+		}
+		protected void doWorkProcess() {
+			try {
+				if(connections.size()<initialSize){
+					connections.add(getConnectionFromDriver());
+				}else{
+					Thread.sleep(100);
+				}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+		}
+		protected void cleanup() {
+		}
+		protected boolean extraExitCondition() {
+			return stopFlag;
+		}
+		
+	}
 	public void init(){
 		if(initialSize>0){
 			connections=new ArrayBlockingQueue<Connection>(initialSize);
 			LoggerHelper.info(getClass(),"datasource pool initd["+initialSize+"]");
-			Thread thread=new Thread(new Runnable() {
-				public void run() {
-					try {
-						while(!Thread.interrupted()){
-							if(connections.size()<initialSize){
-								connections.add(getConnectionFromDriver());
-							}else{
-								Thread.sleep(1000);
-							}
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
+			Thread thread=new ThreadDaemon();
+			thread.setName("daemonDsThread");
+			thread.setDaemon(true);
 			thread.start();
 		}
 

@@ -16,6 +16,7 @@ public class DefaultCacheManager extends ManagedThread implements CacheManager {
 	private static   Map<String,Long> cacheMinute=new ConcurrentHashMap<String, Long>();
 	private static DefaultCacheManager cm;
 	public DefaultCacheManager(){
+		this.setDaemon(true);
 		this.setName("defaultCacheManagerThread");
 		init();
 	}

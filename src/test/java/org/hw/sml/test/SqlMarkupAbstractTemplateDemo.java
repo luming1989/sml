@@ -32,6 +32,8 @@ public class SqlMarkupAbstractTemplateDemo {
 		dataSource.setUrl("jdbc:mysql://23.247.25.117:3306/hw");
 		dataSource.setUsername("root");
 		dataSource.setPassword("hlw");
+		dataSource.setInitialSize(3);
+		dataSource.init();
 		//库集
 		Map<String,DataSource> dss=new HashMap<String,DataSource>();
 		dss.put("defJt", dataSource2);
@@ -67,7 +69,7 @@ public class SqlMarkupAbstractTemplateDemo {
 			jf.destroy();
 		}
 	}
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) throws SQLException, InterruptedException {
 		testQuery();
 	}
 }
