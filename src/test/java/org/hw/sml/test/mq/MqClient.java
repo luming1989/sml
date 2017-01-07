@@ -1,5 +1,7 @@
 package org.hw.sml.test.mq;
 
+import java.util.Date;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -11,6 +13,7 @@ import javax.jms.Session;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.hw.sml.tools.DateTools;
 
 public class MqClient {
 	
@@ -18,6 +21,11 @@ public class MqClient {
 	private String mqUrl;
 	public void init(){
         
+	}
+	public void sd(){
+		String time=DateTools.sdf_mi2.format(new Date());
+		System.out.println(time);
+		send(time);
 	}
 	public void send(String msg){
         Session session = null;

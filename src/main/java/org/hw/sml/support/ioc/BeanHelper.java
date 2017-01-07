@@ -199,7 +199,7 @@ public class BeanHelper {
 						Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not init-method["+methodName+"]");
 						method.setAccessible(true);
 						boolean isDelay=Boolean.valueOf(pvs.get("isDelay"));
-						LoggerHelper.info(BeanHelper.class,"beanName["+beanName+"] init-method["+methodName+"] isDelay["+(isDelay?MapUtils.getString(pvs,"sleep","0")+"ms":"false")+"]...");
+						LoggerHelper.info(BeanHelper.class,"beanName["+beanName+"] init-method["+methodName+"] isDelay["+(isDelay?MapUtils.getString(pvs,"sleep","0")+"s":"false")+"]...");
 						methodInvoke(bean, method, Boolean.valueOf(pvs.get("igErr")), isDelay,Long.parseLong(MapUtils.getString(pvs,"sleep","0")));
 					}else if(k.equals("stop-method")||k.equals("destroy-method")){
 						final Method method=ClassUtil.getMethod(bean.getClass(),methodName);
@@ -323,6 +323,19 @@ public class BeanHelper {
 		Assert.notNull(value,key+" not found!");
 		return MapUtils.transMapFromStr(value);
 	}
+	public static Map<String,String> getPropertyKeyStart(String startKey){
+		Map<String,String> result=MapUtils.newLinkedHashMap();
+		//--
+		Enumeration<Object> keys=FrameworkConstant.otherProperties.keys();
+		while(keys.hasMoreElements()){
+			String key=keys.nextElement().toString();
+			if(key.startsWith(startKey)){
+				result.put(key,getValue(key));
+			}
+		}
+		//--
+		return result;
+	}
 	private static String toLowerForStart(String name){
 		return name.substring(0,1).toLowerCase()+name.substring(1);
 	}
@@ -345,7 +358,7 @@ public class BeanHelper {
 					} 
 				}});
 			thread.start();
-			LoggerHelper.info(BeanHelper.class,"bean["+bean.getClass()+"]"+method.getName()+" lazy load sleep "+ms+" ms!");
+			LoggerHelper.info(BeanHelper.class,"bean["+bean.getClass()+"]"+method.getName()+" lazy load sleep "+ms+" s!");
 		}else{
 			if(igErr){
 				try {
