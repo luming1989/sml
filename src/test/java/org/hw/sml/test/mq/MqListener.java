@@ -48,10 +48,31 @@ public class MqListener implements MessageListener{
 	public void onMessage(Message arg0) {
 		try {
 			String content=((ActiveMQTextMessage)arg0).getText();
-			//System.out.println(((ActiveMQTextMessage)arg0).getText());
-			jdbcTemplate.update("insert into HW_TEST(timeid) values(?)",content);
+			System.out.println(((ActiveMQTextMessage)arg0).getText());
+			System.out.println(content);
+			//jdbcTemplate.update("insert into HW_TEST(timeid) values(?)",content);
 		} catch (JMSException e) {
+			//init();
 			e.printStackTrace();
+		}catch(Throwable e){
+			e.printStackTrace();
+		}
+	}
+	public static void main(String[] args) {
+		int i=0;
+		while(true){
+			if(i==0){
+				System.out.println("reinit!");
+				i++;
+				MqListener ml=new MqListener();
+				ml.destinationName="Q_IPNET_ALARM";
+				ml.mqUrl="tcp://10.78.220.191:61616";
+				ml.init();
+			}
+			if(i==10){
+				i=0;
+			
+			}
 		}
 	}
 

@@ -25,7 +25,7 @@ public class MqClient {
 	public void sd(){
 		String time=DateTools.sdf_mi2.format(new Date());
 		System.out.println(time);
-		send(time);
+		//send(time);
 	}
 	public void send(String msg){
         Session session = null;

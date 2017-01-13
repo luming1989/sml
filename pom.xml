@@ -17,6 +17,11 @@
 			<name>hw-snapshots</name>
 			<url>http://23.247.25.117:8081/nexus/content/repositories/snapshots</url>
 		</repository>
+		<repository>
+			<id>com.ibm.mq</id>
+			<name>com.ibm.mq</name>
+			<url>https://mvnrepository.com/artifact/com.ibm/com.ibm.mq</url>
+		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -55,6 +60,18 @@
 			<version>1.0.13</version>
 			 <scope>test</scope>
 		</dependency> 
+		<dependency> 
+		    <groupId>com.ibm</groupId>
+		    <artifactId>com.ibm.mq</artifactId>
+		    <version>5.3.07</version>
+			<scope>system</scope>
+			<systemPath>E:\\develop\\apache-maven-3.1.0-alpha-1\\maven-dependcies-resource\\com\\ibm\\com.ibm.mq\\5.3.07\\com.ibm.mq-5.3.07.jar</systemPath>
+		</dependency>
+		<dependency>
+		    <groupId>javax.resource</groupId>
+		    <artifactId>javax.resource-api</artifactId>
+		    <version>1.7</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

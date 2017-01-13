@@ -1,6 +1,5 @@
 package org.hw.sml.test.bean;
 
-import org.hw.sml.core.SqlMarkupTemplate;
 import org.hw.sml.support.ioc.BeanHelper;
 
 public class BeanTest {
