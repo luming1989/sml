@@ -39,6 +39,7 @@ public class DefaultJdbcTemplate extends JdbcTemplate  {
 				result=pst.executeUpdate();
 			}catch(SQLException  e){
 				e.printStackTrace();
+				Assert.isTrue(false, e.getMessage()+",sql["+sql+"]");
 			}finally{
 				try{
 					if(pst!=null){
@@ -69,13 +70,13 @@ public class DefaultJdbcTemplate extends JdbcTemplate  {
 				int[] result=pst.executeBatch();
 				con.commit();
 				return result;
-			} catch (SQLException e) {
+			} catch (Exception e) {
 				try {
 					con.rollback();
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}
-				Assert.isTrue(false, e.getMessage());
+				Assert.isTrue(false, e.getMessage()+",sql["+sql+"]");
 			}finally{
 				try{
 					if(pst!=null)
@@ -185,7 +186,7 @@ public class DefaultJdbcTemplate extends JdbcTemplate  {
 					result.add(t);
 				}
 				return result;
-			}catch(SQLException e){
+			}catch(Exception e){
 				e.printStackTrace();
 				Assert.isTrue(false, e.getMessage());
 			}finally{
@@ -229,13 +230,13 @@ public class DefaultJdbcTemplate extends JdbcTemplate  {
 				int[] result=pst.executeBatch();
 				con.commit();
 				return result;
-			} catch (SQLException e) {
+			} catch (Exception e) {
 				try {
 					con.rollback();
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}
-				Assert.isTrue(false, e.getMessage());
+				Assert.isTrue(false, e.getMessage()+",sql["+sql+"]");
 			}finally{
 				try{
 					if(pst!=null)
@@ -269,6 +270,50 @@ public class DefaultJdbcTemplate extends JdbcTemplate  {
 		}
 		public int update(List<String> sqls){
 			return update(sqls,null);
+		}
+		public int update(String[] sqls, List<Object[]>... objs) {
+			Connection con=null;
+			PreparedStatement pst = null;
+			if(objs!=null)
+			Assert.isTrue(sqls.length==objs.length,"sqls size["+sqls.length+"] != objs size["+objs.length+"]");
+			int result=0;
+			try {
+				con=DataSourceUtils.getConnection(getDataSource());
+				con.setAutoCommit(false);
+				for(int i=0;i<sqls.length;i++){
+					String sql=sqls[i];
+					pst=con.prepareStatement(sql);
+					for(int j=0;j<objs[i].size();j++){
+						Object[] params=objs[i].get(j);
+						for(int m=0;m<params.length;m++){
+							setPreparedState(pst, m+1, params[m]);
+						}
+						pst.addBatch();
+					}
+					result+=pst.executeBatch().length;
+				}
+				con.commit();
+				return result;
+			}catch(Exception e){
+				try {
+					con.rollback();
+					result=0;
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				Assert.isTrue(false, e.getMessage());
+			}finally{
+				try {
+					if(pst!=null){
+						pst.close();
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}finally{
+					DataSourceUtils.releaseConnection();
+				}
+			}
+			return result;
 		}
 		public int update(List<String> sqls, List<Object[]> objs) {
 			Connection con=null;
@@ -334,5 +379,6 @@ public class DefaultJdbcTemplate extends JdbcTemplate  {
 				Object... params) {
 			return queryForList(sql, clazz, params);
 		}
+		
 	 
 }

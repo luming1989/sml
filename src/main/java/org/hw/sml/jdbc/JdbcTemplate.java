@@ -26,6 +26,7 @@ public abstract class JdbcTemplate extends JdbcAccessor{
 	public  abstract int update(String sql);
 	public abstract int update(List<String> sqls,List<Object[]> objs);
 	public abstract int update(List<String> sqls);
+	public abstract int update(String[] sqls,List<Object[]>... objs);
 	public abstract int[] batchUpdate(String sql,List<Object[]> objs);
 	public abstract int[] batchUpdate(String sql,BatchPreparedStatementSetter bs);
 	public abstract <T> T query(String sql, Object[] params, ResultSetExtractor<T> rset);
