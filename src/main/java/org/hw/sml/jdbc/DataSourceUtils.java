@@ -23,10 +23,11 @@ public class DataSourceUtils {
 		}
 		return conn;
 	}
-	public static void releaseConnection() {
+	public static void releaseConnection(DataSource dataSource) {
 		Connection conn=connections.get();
 		if(conn!=null){
 			try {
+				//if(dataSource instanceof DefaultDataSource)
 				conn.close();
 			} catch (SQLException e) {
 				e.printStackTrace();

@@ -24,6 +24,7 @@ public class SqlResolvers {
 		sqlResolvers.add(new ParamTypeResolver());
 		sqlResolvers.add(new IfSqlResolver());
 		sqlResolvers.add(new SelectSqlResolver());
+		sqlResolvers.add(new ForeachResolver());
 		sqlResolvers.addAll(extResolvers);
 		sqlResolvers.add(new ParamSqlResolver());
 	}
