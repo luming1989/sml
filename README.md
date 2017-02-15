@@ -64,12 +64,14 @@ sql markup language(sql标记语言)
 	</isNotEmpty>
    ```
    param为查询参数，判断是否为空
+   
    ```
    	<if test=" '@param'=='true' ">
 		//todo
 	</if>
    ```
    test表达示前后必须留一空格，里面填js表达示，@param  对应的参数值
+   
    ```
    	<select id="table_choose">
 		//todo
@@ -77,5 +79,6 @@ sql markup language(sql标记语言)
 			
 	<included id="table_choose"/>
    ```
-   	
+   上面两类内容进行替换
+   
    
