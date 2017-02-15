@@ -56,3 +56,26 @@ sql markup language(sql标记语言)
 	select * from t_class tc,t_student ts where tc.class_id=ts.class_id 
 	and tc.class_name like '%'||?||'%' and ts.s_id in(?,?,?) and tc.class_id=?
         [武术, 2008021902101001, 2008021902101002, 2008021902101003, 05]
+
+##tag
+   ```
+	<isNotEmpty property="param">
+		//todo
+	</isNotEmpty>
+   ```
+   param为查询参数，判断是否为空
+   ```
+   	<if test=" '@param'=='true' ">
+		//todo
+	</if>
+   ```
+   test表达示前后必须留一空格，里面填js表达示，@param  对应的参数值
+   ```
+   	<select id="table_choose">
+		//todo
+	</select>
+			
+	<included id="table_choose"/>
+   ```
+   	
+   
