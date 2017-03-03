@@ -13,6 +13,8 @@ public class FrameworkConstant {
 		FRAMEWORK_CFG_DEFAULT_BUILDER_CLASS
 	}
 	public static final String VERSION="1.0";
+	public static final String AUTHOR="huangwen";
+	public static final String AUTHKEY="2B7F7325F3D74A3FA388A3F84773EE58";
 	public static String CFG_JDBC_INFO="sml.properties";
 	public static String CFG_JDBC_SQL="select id,mainsql,rebuild_info,condition_info,cache_enabled,cache_minutes,db_id  from  DM_CO_BA_CFG_RCPT_IF where id=?";
 	public static String CFG_REPORT_SQL="select id id,rcpt_name as tablename,name description,db_id from DM_CO_BA_CFG_RCPT where id=?";

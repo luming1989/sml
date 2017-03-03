@@ -109,5 +109,7 @@ public class Source implements Plugin{
 	@Override
 	public void destroy() {
 		cacheManager.destroy();
+		dss=null;
+		jts=null;
 	}
 }
