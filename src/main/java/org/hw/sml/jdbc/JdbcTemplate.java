@@ -22,6 +22,8 @@ public abstract class JdbcTemplate extends JdbcAccessor{
 	public JdbcTemplate(DataSource dataSource){
 		this.dataSource=dataSource;
 	}
+	public abstract void execute(String sql);
+	public abstract void execute(String sql,Object[] params);
 	public abstract int update(String sql,Object... params);
 	public  abstract int update(String sql);
 	public abstract int update(List<String> sqls,List<Object[]> objs);
@@ -34,6 +36,8 @@ public abstract class JdbcTemplate extends JdbcAccessor{
 	public abstract <T> List<T> query(String sql,Object[] params,RowMapper<T> rowMapper);
 	public abstract <T> List<T> query(String sql,RowMapper<T> rowMapper,Object... params);
 	public abstract <T> T queryForObject(String sql,Object[] params,RowMapper<T> rowMapper);
+	public abstract void queryForCallback(String sql,Object[] params,Callback callBack);
+	public abstract void queryForCallback(String sql,Callback callBack);
 	public abstract <T> T queryForObject(String sql,RowMapper<T> rowMapper,Object... params);
 	public abstract int queryForInt(String sql,Object... params);
 	public abstract int queryForInt(String sql);

@@ -7,13 +7,20 @@ import org.hw.sml.model.SMLParams;
 import org.hw.sml.support.el.El;
 import org.hw.sml.tools.Assert;
 import org.hw.sml.tools.RegexUtils;
-
+/**
+ * 
+ * @author wen
+ * foreach 语法
+ * property:参数必须为数组array-char等
+ * mid：中间连接符
+ *
+ */
 public class ForeachResolver implements SqlResolver{
 	private El el;
 	public Rst resolve(String dialect, String temp, SMLParams smlParams) {
 		List<String> mathers=null;
 		if(temp.contains("<foreach")){
-			mathers=RegexUtils.matchGroup("<foreach\\d* property=\"\\w+\" mid=\"\\w*\">",temp);
+			mathers=RegexUtils.matchGroup("<foreach\\d* property=\"\\w+\" mid=\"\\S*\">",temp);
 			for(String mather:mathers){
 				String tmt=mather;
 				int start=temp.indexOf(tmt);
@@ -35,7 +42,7 @@ public class ForeachResolver implements SqlResolver{
 				StringBuffer sb=new StringBuffer();
 				for(int i=0;i<objs.length;i++){
 					Object obj=objs[i];
-					sb.append(content.replace("$value",obj.toString()));
+					sb.append(content.replace("@value",obj.toString()));
 					if(i<objs.length-1){
 						sb.append(fix);
 					}

@@ -27,7 +27,7 @@ public class DataSourceUtils {
 		Connection conn=connections.get();
 		if(conn!=null){
 			try {
-				//if(dataSource instanceof DefaultDataSource)
+				if(!conn.isClosed())
 				conn.close();
 			} catch (SQLException e) {
 				e.printStackTrace();

@@ -19,7 +19,7 @@ public class ForeachTest {
 		sqlResolvers.init();
 		for(int i=0;i<1;i++){
 			long start=System.currentTimeMillis();
-			Rst rst=sqlResolvers.resolverLinks(sql,new SMLParams().add("a","v1").add("cars","a").add("c","vvv").add("d","1,2,3,4").reinit());
+			Rst rst=sqlResolvers.resolverLinks(sql,new SMLParams().add("a","v1").add("cars",new String[]{"a","b","c"}).add("c","vvv").add("d","1,2,3,4").reinit());
 			//rst=sqlResolvers.resolverLinks(sql,new SMLParams().add("a","v1").add("b",new String[]{"v2","v3","v4"}).add("c","vvv").add("d","1,2,3,4").reinit());
 			long end=System.currentTimeMillis();
 			System.out.println(rst.getSqlString());
