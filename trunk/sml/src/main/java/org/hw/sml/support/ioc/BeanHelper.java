@@ -22,12 +22,13 @@ import org.hw.sml.tools.MapUtils;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class BeanHelper {
+	public static final String IOC_BEAN_SCAN="ioc-bean-scan";
 	private static  Map<String,Object> beanMap=MapUtils.newHashMap();
 	private static  Map<String,Object> propertyInitBeanMap=MapUtils.newHashMap();
 	private static Map<String,Boolean> beanErrInfo=MapUtils.newHashMap();
 	static{
 		try {
-			String packageName=getValue("ioc-bean-scan");
+			String packageName=getValue(IOC_BEAN_SCAN);
 			List<Class<?>> classes=MapUtils.newArrayList();
 			boolean isAnnotationScan=packageName!=null&&packageName.trim().length()>0;
 			if(isAnnotationScan){
@@ -335,6 +336,9 @@ public class BeanHelper {
 		}
 		//--
 		return result;
+	}
+	public static Map<String,Object> getBeanMap(){
+		return beanMap;
 	}
 	private static String toLowerForStart(String name){
 		return name.substring(0,1).toLowerCase()+name.substring(1);
