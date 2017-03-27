@@ -110,7 +110,8 @@ public class ManagedQuene {
 				if(future!=null)
 				future.cancel(true);
 			}catch (Exception e) {
-				LoggerHelper.error(getClass(),getErrorMsg());
+				e.printStackTrace();
+				LoggerHelper.error(getClass(),String.format(getErrorMsg(),e.getMessage()));
 			}finally{
 				if(exec!=null)
 					exec.shutdown();
@@ -174,7 +175,7 @@ public class ManagedQuene {
 
 	public String getErrorMsg() {
 		if(errorMsg==null){
-			errorMsg=getManageName()+" of manageName has Error msg like [{}]!";
+			errorMsg=getManageName()+" of manageName has Error msg like [%s]!";
 		}
 		return errorMsg;
 	}

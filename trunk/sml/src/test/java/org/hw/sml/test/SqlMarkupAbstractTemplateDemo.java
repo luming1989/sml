@@ -38,7 +38,7 @@ public class SqlMarkupAbstractTemplateDemo {
 		st.setDss(dss);
 		st.init();
 		//System.out.println(jdbcTemplate.queryForList("select 1 from DM_CO_BA_CFG_RCPT_IF where id like '%'||?||'%'", new Object[]{"-test"}));
-		for(int i=0;i<10;i++){
+		for(int i=0;i<1;i++){
 			Object obj=st.getSmlContextUtils().query("area-pm",new Maps().put("FLUSHCACHE","true").getMap());
 			System.out.println(obj);
 			}

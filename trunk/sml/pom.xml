@@ -11,18 +11,6 @@
 	<packaging>jar</packaging>
 	<name>sml</name>
 	<description>sql markup language</description>
-	<repositories>
-		<repository>
-			<id>hw-snapshots</id>
-			<name>hw-snapshots</name>
-			<url>http://23.247.25.117:8081/nexus/content/repositories/snapshots</url>
-		</repository>
-		<repository>
-			<id>com.ibm.mq</id>
-			<name>com.ibm.mq</name>
-			<url>https://mvnrepository.com/artifact/com.ibm/com.ibm.mq</url>
-		</repository>
-	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>

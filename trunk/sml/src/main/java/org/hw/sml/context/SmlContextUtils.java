@@ -156,6 +156,7 @@ public class SmlContextUtils {
 					sp.handlerValue(sp.getDefaultValue());
 				}
 			}
+			st.getSmlParams().reinit();
 		}
 	}
 	
