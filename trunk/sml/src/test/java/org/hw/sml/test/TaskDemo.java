@@ -9,8 +9,8 @@ public class TaskDemo {
 		mq.setConsumerThreadSize(3);//处理线程任务数
 		mq.setTimeout(10);//超时s
 		mq.init();
-		for(int i=0;i<10;i++){
-			mq.add(new Task1());
+		for(int i=1;i<15;i++){
+			mq.add(new Task1(i));
 				try {
 					Thread.sleep(10);
 				} catch (InterruptedException e) {
@@ -18,14 +18,17 @@ public class TaskDemo {
 				}	
 		}
 	}
-	 static int count=0;
 	 static class Task1 implements Task{
+		 private int c;
+		 public Task1(int c){
+			 this.c=c;
+		 }
 		 public String toString(){
-			 return count+"";
+			 return "任务-#("+c+")";
 		 }
 		public synchronized void execute() throws Exception {
-			Thread.sleep(count*1000);
-			System.out.println(count++);
+			Thread.sleep(c*1000);
+			System.out.println(this.toString()+" 执行完成！");
 		}
 		
 	}

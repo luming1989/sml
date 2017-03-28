@@ -96,7 +96,7 @@ public class ManagedQuene {
 				if(timeout<=0)
 					task.execute();
 				else{
-					exec = Executors.newCachedThreadPool();
+					exec = Executors.newSingleThreadExecutor();
 					Callable<Integer> call=new Callable<Integer>() {
 						public Integer call() throws Exception {
 							return new Inner(t).exe();

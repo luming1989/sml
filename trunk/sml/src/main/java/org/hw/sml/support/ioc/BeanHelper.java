@@ -108,6 +108,7 @@ public class BeanHelper {
 							if(field!=null)
 							field.setAccessible(true);
 							if(fieldType==null||fieldType.equals("v")||fieldType.equals("b")){
+								Assert.notNull(getValue(fieldType,et.getValue()),"property["+et.getValue()+"] is not configed!");
 								Object value=ClassUtil.convertValueToRequiredType(getValue(fieldType,et.getValue()), field.getType());
 								Assert.notNull(value, "bean["+beanName+"-"+bean.getClass()+"] has not field "+fieldType+"["+et.getValue()+"]");
 								field.set(bean,value.equals("")?null:value);
