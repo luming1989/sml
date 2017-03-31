@@ -195,5 +195,12 @@ public class ClassUtil {
     	}
     	return getField(clazz.getSuperclass(), name);
     }
-    
+    public  static boolean hasClass(String classPath){
+    	try{
+    		Class.forName(classPath);
+    	}catch(Exception e){
+    		return false;
+    	}
+    	return true;
+    }
 }

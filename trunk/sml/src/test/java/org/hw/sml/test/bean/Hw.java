@@ -14,7 +14,7 @@ public class Hw {
 	@Inject("car")
 	private ICar car;
 	
-	@Inject("carBus")
+	
 	private ICar carBus;
 	
 	@Val("age")
@@ -46,6 +46,7 @@ public class Hw {
 	public ICar getCarBus() {
 		return carBus;
 	}
+	@Inject("carBus")
 	public void setCarBus(ICar carBus) {
 		this.carBus = carBus;
 	}

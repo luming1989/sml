@@ -108,7 +108,8 @@ public class BeanHelper {
 							if(field!=null)
 							field.setAccessible(true);
 							if(fieldType==null||fieldType.equals("v")||fieldType.equals("b")){
-								Assert.notNull(getValue(fieldType,et.getValue()),"property["+et.getValue()+"] is not configed!");
+								Assert.notNull(getValue(fieldType,et.getValue()),beanName+"-property["+et.getValue()+"] is not configed!");
+								Assert.notNull(field, "bean["+beanName+"-"+bean.getClass()+"] has not field["+fieldName+"]");
 								Object value=ClassUtil.convertValueToRequiredType(getValue(fieldType,et.getValue()), field.getType());
 								Assert.notNull(value, "bean["+beanName+"-"+bean.getClass()+"] has not field "+fieldType+"["+et.getValue()+"]");
 								field.set(bean,value.equals("")?null:value);
@@ -145,7 +146,7 @@ public class BeanHelper {
 					if(beanName==null||beanName.trim().length()==0){
 						beanName=toLowerForStart(clazz.getSimpleName());
 					}
-					//
+					//字段注入方式
 					Field[] fields=ClassUtil.getFields(clazz);
 					for(Field filed:fields){
 						Inject inject=filed.getAnnotation(Inject.class);
@@ -160,6 +161,22 @@ public class BeanHelper {
 						Object v= beanMap.get(injectName)==null?beanMap.get(filed.getName()):beanMap.get(injectName);
 						Assert.notNull(v, "beanName:["+beanName+"-"+bean.getClass()+"],field inject ["+filed.getName()+"] v is null");
 						filed.set(beanMap.get(beanName),v.equals("")?null:v);
+					}
+					//方法注入方式
+					Method[] methods=ClassUtil.getMethods(clazz);
+					for(Method method:methods){
+						Inject inject=method.getAnnotation(Inject.class);
+						if(inject==null){
+							continue;
+						}
+						String injectName=inject.value();
+						if(injectName==null||injectName.trim().length()==0){
+							injectName=toLowerForStart(method.getParameterTypes()[0].getSimpleName());
+						}
+						method.setAccessible(true);
+						Object v=beanMap.get(injectName)==null?beanMap.get(method.getParameterTypes()[0]):beanMap.get(injectName);
+						Assert.notNull(v, "beanName:["+beanName+"-"+bean.getClass()+"],method inject ["+method.getName()+" params ] v is null");
+						method.invoke(beanMap.get(beanName),v);
 					}
 				}
 				
@@ -182,6 +199,18 @@ public class BeanHelper {
 						filed.setAccessible(true);
 						Assert.notNull(getValue(configName), "beanName:["+beanName+"-"+bean.getClass()+"],field value "+filed.getName()+" is null");
 						filed.set(beanMap.get(beanName),ClassUtil.convertValueToRequiredType(getValue(configName),filed.getType()));
+					}
+					//方法注入方式
+					Method[] methods=ClassUtil.getMethods(clazz);
+					for(Method method:methods){
+						Val val=method.getAnnotation(Val.class);
+						if(val==null){
+							continue;
+						}
+						String configName=val.value();
+						method.setAccessible(true);
+						Assert.notNull(getValue(configName), "beanName:["+beanName+"-"+bean.getClass()+"],method param "+method.getName()+" is null");
+						method.invoke(beanMap.get(beanName),ClassUtil.convertValueToRequiredType(getValue(configName),method.getParameterTypes()[0]));
 					}
 				}
 			}
