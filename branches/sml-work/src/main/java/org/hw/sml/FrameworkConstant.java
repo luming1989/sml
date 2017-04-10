@@ -15,7 +15,7 @@ public class FrameworkConstant {
 	
 	public static String CFG_JDBC_INFO="sml.properties";
 	public static final String AUTHOR="huangwen";
-	public static final String AUTHKEY="98CB5CF255679C691E4AE9E071565F39";
+	public static final String AUTHKEY="5296D518F084D2B01DC1F360BE4DBFF1";
 	public static String CFG_JDBC_SQL="select id,mainsql,rebuild_info jsonrebuildparammap,condition_info jsonconditionmap,cache_enabled iscache,cache_minutes cacheminutes,db_id dbid from  DM_CO_BA_CFG_RCPT_IF where id=?";
 	public static String CFG_REPORT_SQL="select id id,rcpt_name as tablename,name description,db_id from DM_CO_BA_CFG_RCPT where id=?";
 	public static String CFG_REPORT_DETAIL_SQL="select rcpt_id as table_id,kpi_name_en as field_name,kpi_name_ch as field_name_zn,format,field_type,id as order_index,length,for_insert,for_update,for_import,for_import_update,for_query,is_query from DM_CO_BA_CFG_RCPT_DETAIL where rcpt_id=? and enabled=1 order by id";

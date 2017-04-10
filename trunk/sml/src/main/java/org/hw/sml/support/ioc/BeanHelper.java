@@ -406,4 +406,7 @@ public class BeanHelper {
 		}
 		
 	}
+	public static void main(String[] args) {
+		start();
+	}
 }
