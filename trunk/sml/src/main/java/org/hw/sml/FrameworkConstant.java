@@ -114,6 +114,8 @@ public class FrameworkConstant {
 		result=properties.getProperty(key);
 		if(result==null)
 			result=otherProperties.getProperty(key);
+		if(result==null)
+			result=System.getProperties().getProperty(key);
 		return result;
 	}
 	private static String getName(String profile,String name){

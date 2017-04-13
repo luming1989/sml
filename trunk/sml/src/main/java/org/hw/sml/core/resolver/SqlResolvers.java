@@ -2,9 +2,11 @@ package org.hw.sml.core.resolver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.hw.sml.model.SMLParams;
 import org.hw.sml.support.el.El;
+import org.hw.sml.tools.MapUtils;
 
 public class SqlResolvers {
 	
@@ -33,8 +35,9 @@ public class SqlResolvers {
 		sqlResolvers.add(sqlResolver);
 	}
 	
-	public synchronized Rst resolverLinks(String sql,SMLParams smlParams){
+	public  Rst resolverLinks(String sql,SMLParams smlParams){
 		List<Object> paramsObject=new ArrayList<Object>();
+		Map<String,Object> extInfo=MapUtils.newHashMap(); 
 		for(SqlResolver sqlResolver:sqlResolvers){
 			sqlResolver.setEl(el);
 			Rst subRst=sqlResolver.resolve(null, sql,smlParams);
@@ -42,8 +45,12 @@ public class SqlResolvers {
 			if(subRst.getParamObjects()!=null&&subRst.getParamObjects().size()>0){
 				paramsObject.addAll(subRst.getParamObjects());
 			}
+			if(subRst.getExtInfo()!=null&&subRst.getExtInfo().size()>0){
+				extInfo.putAll(subRst.getExtInfo());
+			}
+			
 		}
-		return new Rst(sql,paramsObject);
+		return new Rst(sql,paramsObject).setExtInfo(extInfo);
 	}
 
 

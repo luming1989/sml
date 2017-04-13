@@ -1,10 +1,15 @@
 package org.hw.sml.core.resolver;
 
 import java.util.List;
+import java.util.Map;
 
 public class Rst{
+	
 	private String sqlString;
+	
 	private List<Object> paramObjects;
+	
+	private Map<String,Object> extInfo;
 	
 	public Rst() {
 		super();
@@ -32,6 +37,15 @@ public class Rst{
 	}
 	public void setParamObjects(List<Object> paramObjects) {
 		this.paramObjects = paramObjects;
+	}
+
+	public Map<String, Object> getExtInfo() {
+		return extInfo;
+	}
+
+	public Rst setExtInfo(Map<String, Object> extInfo) {
+		this.extInfo = extInfo;
+		return this;
 	}
 	
 }
