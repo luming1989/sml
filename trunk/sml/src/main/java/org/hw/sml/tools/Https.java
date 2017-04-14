@@ -32,9 +32,14 @@ public class Https {
 	private String url;
 	private Header header=new Header("*/*","*/*");
 	private Object body;
+	private int connectTimeout;
 	private Paramer paramer=new Paramer();
 	public Https charset(String charset){
 		this.charset=charset;
+		return this;
+	}
+	public Https connectTimeout(int timeout){
+		this.connectTimeout=timeout;
 		return this;
 	}
 	private Https method(String method){
@@ -45,7 +50,6 @@ public class Https {
 		this.header=header;
 		return this;
 	}
-	
 	public String getMethod() {
 		return method;
 	}
@@ -68,6 +72,7 @@ public class Https {
 		private Map<String,String> params=MapUtils.newLinkedHashMap();
 		public Paramer(){}
 		public Paramer(String queryParamStr){this.queryParamStr=queryParamStr;}
+		public Paramer param(String queryParamStr){this.queryParamStr=queryParamStr;return this;}
 		public Paramer add(String name,String value){
 			params.put(name,value);
 			return this;
@@ -129,6 +134,14 @@ public class Https {
 		}
 		
 	}
+	private int responseStatus;
+	public int getResponseStatus(){
+		return responseStatus;
+	}
+	private String responseMessage;
+	public String getResponseMessage(){
+		return responseMessage;
+	}
 	
 	public byte[] query() throws IOException{
 		String qps=this.paramer.builder(header.requestCharset);
@@ -136,7 +149,9 @@ public class Https {
 		URL realUrl = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection) realUrl.openConnection();
 		for(Map.Entry<String,String> entry:header.header.entrySet())
-		conn.addRequestProperty(entry.getKey(),entry.getValue());
+			conn.addRequestProperty(entry.getKey(),entry.getValue());
+		if(connectTimeout!=0)
+			conn.setConnectTimeout(connectTimeout);
 		//
 		conn.setDoOutput(true);
 		conn.setRequestMethod(this.method);
@@ -163,12 +178,13 @@ public class Https {
 			while((temp=is.read(bytes))!=-1){
 				bos.write(bytes,0,temp);
 			}
-		}catch(Exception e){
-			e.printStackTrace();
+		}catch(IOException e){
+			throw e;
 		}finally{
-			if(conn!=null){
+			this.responseStatus=conn.getResponseCode();
+			this.responseMessage=conn.getResponseMessage();
+			if(conn!=null)
 				conn.disconnect();
-			}
 			if(out!=null)
 				out.close();
 			if(is!=null)
@@ -196,5 +212,4 @@ public class Https {
 	public Paramer getParamer() {
 		return paramer;
 	}
-	
 }
