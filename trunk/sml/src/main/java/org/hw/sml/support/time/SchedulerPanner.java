@@ -18,7 +18,7 @@ public class SchedulerPanner extends ManagedQuene{
 		while(keys.hasMoreElements()){
 			String key=(String) keys.nextElement();
 			if(key.startsWith("task-")&&key.contains("-")){
-				String beanMethod=key.replace("task-","");
+				String beanMethod=key.replaceFirst("task-","");
 				if(beanMethod.split("\\.").length==1){
 					LoggerHelper.warn(getClass(),key+" is error!");
 					continue;

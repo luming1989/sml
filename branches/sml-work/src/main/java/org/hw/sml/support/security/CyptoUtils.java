@@ -13,23 +13,23 @@ import javax.crypto.spec.IvParameterSpec;
 public class CyptoUtils {
 
 	public static final String ALGORITHM_DES = "DES/CBC/PKCS5Padding";
-	private static final byte[] IV="huangwen".getBytes();
-    public static String decode(String key,String data) {
-    	if(data == null)
-    		return null;
-        try {
-	    	DESKeySpec dks = new DESKeySpec(key.getBytes());
-	    	SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
-            Key secretKey = keyFactory.generateSecret(dks);
-            Cipher cipher = Cipher.getInstance(ALGORITHM_DES);
-            IvParameterSpec iv = new IvParameterSpec(IV);
-            AlgorithmParameterSpec paramSpec = iv;
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, paramSpec);
-            return new String(cipher.doFinal(hex2byte(data.getBytes())));
-        } catch (Exception e){
-    		return data;
-        }
-    }
+	private static final byte[] IV="12345678".getBytes();
+	  public static String decode(String key,String data) {
+	    	if(data == null)
+	    		return null;
+	        try {
+		    	DESKeySpec dks = new DESKeySpec(key.getBytes());
+		    	SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+	            Key secretKey = keyFactory.generateSecret(dks);
+	            Cipher cipher = Cipher.getInstance(ALGORITHM_DES);
+	            IvParameterSpec iv = new IvParameterSpec(IV);
+	            AlgorithmParameterSpec paramSpec = iv;
+	            cipher.init(Cipher.DECRYPT_MODE, secretKey, paramSpec);
+	            return new String(cipher.doFinal(hex2byte(data.getBytes())));
+	        } catch (Exception e){
+	    		return data;
+	        }
+	    }
     
     private static byte[] hex2byte(byte[] b) {
         if((b.length%2)!=0)
@@ -41,7 +41,4 @@ public class CyptoUtils {
 		}
         return b2;
     }
-   public static void main(String[] args) {
-	   System.out.println(decode("huangwen","a8CB5CF255679C691E4AE9E071565F39"));
-   }
 }

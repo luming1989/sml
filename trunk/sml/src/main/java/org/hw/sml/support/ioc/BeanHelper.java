@@ -18,6 +18,7 @@ import org.hw.sml.support.ioc.annotation.Val;
 import org.hw.sml.tools.Assert;
 import org.hw.sml.tools.ClassUtil;
 import org.hw.sml.tools.MapUtils;
+import org.hw.sml.tools.RegexUtils;
 
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -42,9 +43,19 @@ public class BeanHelper {
 			while(keys.hasMoreElements()){
 				String key=keys.nextElement().toString();
 				if(!key.startsWith("bean-")){
+					String value=getValue(key);
+					List<String> ms=RegexUtils.matchGroup("\\$\\{[\\w|.|-]+\\}",value);
+					if(ms.size()==0) continue;
+					for(String m:ms){
+						String vt=getValue(m.substring(2,m.length()-1));
+						if(vt!=null)
+						value=value.replace(m,vt);
+					}
+					FrameworkConstant.otherProperties.put(key, value);
+					//
 					continue;
 				}
-				String beanName=key.replace("bean-","");
+				String beanName=key.replaceFirst("bean-","");
 				Map<String,String> beanKeyValue=getBeanKeyValue(key);
 				String classpath=beanKeyValue.get("class");
 				Assert.notNull(classpath,"bean["+beanName+"] class is null!");
@@ -408,5 +419,7 @@ public class BeanHelper {
 	}
 	public static void main(String[] args) {
 		start();
+		List<String> subs=RegexUtils.matchGroup("\\$\\{[\\w|.|-]+\\}","${s.s-s}+${ddd}");
+		System.out.println(subs);
 	}
 }

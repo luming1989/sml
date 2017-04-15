@@ -1,11 +1,7 @@
 package com.eastcom_sw.inas.core.service.support;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +10,7 @@ import org.hw.sml.core.resolver.SqlResolver;
 import org.hw.sml.jdbc.JdbcTemplate;
 import org.hw.sml.support.cache.CacheManager;
 import org.hw.sml.support.el.El;
+import org.hw.sml.tools.Https;
 
 import com.eastcom_sw.inas.core.service.jdbc.AbstractJdbcFTemplate;
 import com.eastcom_sw.inas.core.service.jdbc.JsonMapper;
@@ -166,42 +163,15 @@ public class JFContextUtils {
 	public static boolean isNotBlank(Object val) {
 		return val != null && String.valueOf(val).trim().length() > 0;
 	}
-	//--ext
-	public static String queryFromUrl(String contentType,String accept,String url,String requestBody) throws IOException{
-		PrintWriter out = null;
-        BufferedReader in = null;
-        String result = "";
-            URL realUrl = new URL(url);
-            HttpURLConnection conn = (HttpURLConnection) realUrl.openConnection();
-            if(accept!=null)
-            conn.setRequestProperty("accept", accept);
-            if(contentType!=null)
-            conn.setRequestProperty("content-type",contentType);
-            conn.setRequestProperty("connection", "Keep-Alive");
-            conn.setRequestProperty("SOAPAction","");
-            conn.setRequestProperty("user-agent","Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            conn.setRequestMethod("POST");
-            out = new PrintWriter(conn.getOutputStream());
-            out.print(requestBody);
-            out.flush();
-            in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String line;
-            while ((line = in.readLine()) != null) {
-                result += line;
-            }
-                if(out!=null){
-                    out.close();
-                }
-                if(in!=null){
-                    in.close();
-                }
-        return result;
+	public static String queryFromUrl(String contentType,String accept,String url,byte[] requestBody) throws IOException{
+		Https https=Https.newPostHttps(url);
+		return https.head(https.getHeader().put("Content-Type",contentType).put("Accept",accept)).body(requestBody).execute();
 	}
-	public static String queryFromUrl(String url,String requestBody) throws IOException{
+	public static String queryFromUrl(String url,byte[] requestBody) throws IOException{
 		return queryFromUrl("application/json;charset=UTF-8", "application/json;charset=UTF-8", url, requestBody);
 	}
-	
-	
+	public static String queryFromUrl(String url,String requestBody) throws IOException{
+		Charset charset=Charset.forName("utf-8");
+		return new String(queryFromUrl(url, requestBody.getBytes(charset)).getBytes());
+	}
 }

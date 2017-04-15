@@ -39,7 +39,7 @@ public class Scheduler implements Plugin{
 		if(!fixedRate)
 			this.timer.schedule(task,firstTime,delay*1000);
 		else
-			this.timer.schedule(task, firstTime, delay*1000);
+			this.timer.scheduleAtFixedRate(task, firstTime, delay*1000);
 	}
 	
 	public void destroy() {

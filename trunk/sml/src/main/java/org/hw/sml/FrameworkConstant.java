@@ -111,8 +111,8 @@ public class FrameworkConstant {
 	}
 	public static String getProperty(String key){
 		String result=null;
-		result=properties.getProperty(key);
-		if(result==null)
+		//result=properties.getProperty(key);
+		//if(result==null)
 			result=otherProperties.getProperty(key);
 		if(result==null)
 			result=System.getProperties().getProperty(key);

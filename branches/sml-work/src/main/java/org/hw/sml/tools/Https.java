@@ -27,16 +27,6 @@ public class Https {
 	public static Https newPostHttps(String url){
 		return new Https(url).method(METHOD_POST);
 	}
-	public static Https newPostBodyHttps(String url){
-		Https https= new Https(url).method(METHOD_POST);
-		https.getHeader().put("Content-Type","application/json");
-		return https;
-	}
-	public static Https newPostFormHttps(String url){
-		Https https= new Https(url).method(METHOD_POST);
-		https.getHeader().put("Content-Type","application/x-www-form-urlencoded");
-		return https;
-	}
 	private String method=METHOD_GET;
 	private String charset="utf-8";
 	private String url;
@@ -199,6 +189,8 @@ public class Https {
 				out.close();
 			if(is!=null)
 				is.close();
+			if(bos!=null)
+				bos.close();
 		}
 		return bos.toByteArray();
 	}
