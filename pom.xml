@@ -57,12 +57,12 @@
 	</repositories>
 	<distributionManagement>
 		<snapshotRepository>
-			<id>hw</id>
+			<id>hw-snapshots</id>
 			<name>hw-snapshots</name>
 			<url>http://23.247.25.117:8081/nexus/content/repositories/snapshots</url>
 		</snapshotRepository>
 		<repository>
-			<id>hw</id>
+			<id>hw-releases</id>
 			<name>hw-releases</name>
 			<url>http://23.247.25.117:8081/nexus/content/repositories/releases</url>
 		</repository>
