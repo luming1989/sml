@@ -18,6 +18,7 @@ public class Https {
 	
 	public static final String METHOD_GET="GET";
 	public static final String METHOD_POST="POST";
+	private boolean keepAlive=false;
 	private Https(String url){
 		this.url=url;
 	}
@@ -31,6 +32,10 @@ public class Https {
 		Https https= new Https(url).method(METHOD_POST);
 		https.getHeader().put("Content-Type","application/json");
 		return https;
+	}
+	public Https keepAlive(boolean ka){
+		this.keepAlive=ka;
+		return this;
 	}
 	public static Https newPostFormHttps(String url){
 		Https https= new Https(url).method(METHOD_POST);
@@ -193,7 +198,7 @@ public class Https {
 		}finally{
 			this.responseStatus=conn.getResponseCode();
 			this.responseMessage=conn.getResponseMessage();
-			if(conn!=null)
+			if(conn!=null&&!keepAlive)
 				conn.disconnect();
 			if(out!=null)
 				out.close();

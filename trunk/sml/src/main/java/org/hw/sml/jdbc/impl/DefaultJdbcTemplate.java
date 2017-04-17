@@ -12,7 +12,6 @@ import javax.sql.DataSource;
 
 import org.hw.sml.jdbc.BatchPreparedStatementSetter;
 import org.hw.sml.jdbc.Callback;
-import org.hw.sml.jdbc.DataSourceUtils;
 import org.hw.sml.jdbc.JdbcTemplate;
 import org.hw.sml.jdbc.ResultSetExtractor;
 import org.hw.sml.jdbc.RowMapper;
