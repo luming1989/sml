@@ -18,6 +18,7 @@ public class Https {
 	
 	public static final String METHOD_GET="GET";
 	public static final String METHOD_POST="POST";
+	private boolean keepAlive=false;
 	private Https(String url){
 		this.url=url;
 	}
@@ -26,6 +27,20 @@ public class Https {
 	}
 	public static Https newPostHttps(String url){
 		return new Https(url).method(METHOD_POST);
+	}
+	public static Https newPostBodyHttps(String url){
+		Https https= new Https(url).method(METHOD_POST);
+		https.getHeader().put("Content-Type","application/json");
+		return https;
+	}
+	public Https keepAlive(boolean ka){
+		this.keepAlive=ka;
+		return this;
+	}
+	public static Https newPostFormHttps(String url){
+		Https https= new Https(url).method(METHOD_POST);
+		https.getHeader().put("Content-Type","application/x-www-form-urlencoded");
+		return https;
 	}
 	private String method=METHOD_GET;
 	private String charset="utf-8";
@@ -183,14 +198,12 @@ public class Https {
 		}finally{
 			this.responseStatus=conn.getResponseCode();
 			this.responseMessage=conn.getResponseMessage();
-			if(conn!=null)
+			if(conn!=null&&!keepAlive)
 				conn.disconnect();
 			if(out!=null)
 				out.close();
 			if(is!=null)
 				is.close();
-			if(bos!=null)
-				bos.close();
 		}
 		return bos.toByteArray();
 	}

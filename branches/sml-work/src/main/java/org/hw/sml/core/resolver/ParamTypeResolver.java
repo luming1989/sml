@@ -1,9 +1,15 @@
 package org.hw.sml.core.resolver;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
+import org.hw.sml.core.resolver.Rst;
 import org.hw.sml.support.el.El;
 import org.hw.sml.tools.Assert;
+import org.hw.sml.tools.ClassUtil;
+import org.hw.sml.tools.MapUtils;
 
 import com.eastcom_sw.inas.core.service.jdbc.SqlParam;
 import com.eastcom_sw.inas.core.service.jdbc.SqlParams;
@@ -72,9 +78,46 @@ public class ParamTypeResolver implements SqlResolver{
 				}
 			}
 		}
+		if(temp.contains("<import")){
+			mathers=RegexUtils.matchGroup("<import id=\"\\w+\" classpath=\"[\\w|.]+\"/>",temp);
+			Map<String,Object> classpaths=MapUtils.newHashMap();
+			for(String mather:mathers){
+				String id=RegexUtils.subString(mather, "<import id=\"","\" classpath");
+				String cp=RegexUtils.subString(mather, "classpath=\"","\"/>");
+				Assert.isTrue(ClassUtil.hasClass(cp), "class "+cp+" not exists!");
+				classpaths.put(id,ClassUtil.newInstance(cp));
+				temp=temp.replace(mather,"");
+			}
+			mathers=RegexUtils.matchGroup("\\$\\{\\w+.\\w+\\([\\S|,]+\\)\\}", temp);
+			for(String mather:mathers){
+				String[] sss=RegexUtils.matchSubString("\\$\\{(.\\w+).(.*?)\\((.*?)\\)\\}",mather);
+				Object bean=classpaths.get(sss[0]);
+				Assert.notNull(bean,sss[0]+" is not import class!");
+				Method m;
+				try {
+					m = bean.getClass().getMethod(sss[1],getClassPath(sss[2]));
+					String result=(String) m.invoke(bean,sss[2].split(","));
+					temp=temp.replace(mather,result);
+				} catch (NoSuchMethodException e) {
+					Assert.isTrue(false,sss[0]+"-"+sss[1]+" method not find!");
+				} catch (InvocationTargetException e) {
+					Assert.isTrue(false,"inner error "+e.getTargetException());
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		return new Rst(temp);
 	}
-
+	private Class[] getClassPath(String sss){
+		Class[] c=new Class[sss.split(",").length];
+		for(int i=0;i<c.length;i++){
+			c[i]=String.class;
+		}
+		return c;
+	}
 	@Override
 	public void setEl(El el) {
 		

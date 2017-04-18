@@ -46,11 +46,16 @@ public class ManagedQuene {
 	
 	private boolean stop=false;
 	
+	private boolean fullErrIgnore=true;
+	
+	private int fullErrTimeout=100;
+	
 	private List<Execute> executes=new ArrayList<Execute>();
 	
 	private int timeout;
 	
 	private boolean ignoreLog=true;
+	
 	
 	
 	public  void init(){
@@ -74,8 +79,20 @@ public class ManagedQuene {
 		}
 		executes.clear();
 	}
-	
 	public void add(Task task){
+		if(queue.size()>=depth&&fullErrIgnore){
+				try {
+					Thread.sleep(fullErrTimeout);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				add(task);
+		}else{
+			addT(task);
+		}
+	}
+	
+	public synchronized void addT(Task task){
 		queue.add(task);
 		if(!ignoreLog)
 			LoggerHelper.info(getClass(),"add "+getManageName()+" total-"+getDepth()+",current-"+queue.size()+".");
@@ -211,6 +228,22 @@ public class ManagedQuene {
 
 	public void setIgnoreLog(boolean ignoreLog) {
 		this.ignoreLog = ignoreLog;
+	}
+
+	public boolean isFullErrIgnore() {
+		return fullErrIgnore;
+	}
+
+	public void setFullErrIgnore(boolean fullErrIgnore) {
+		this.fullErrIgnore = fullErrIgnore;
+	}
+
+	public int getFullErrTimeout() {
+		return fullErrTimeout;
+	}
+
+	public void setFullErrTimeout(int fullErrTimeout) {
+		this.fullErrTimeout = fullErrTimeout;
 	}
 	
 	

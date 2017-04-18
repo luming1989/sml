@@ -417,9 +417,4 @@ public class BeanHelper {
 		}
 		
 	}
-	public static void main(String[] args) {
-		start();
-		List<String> subs=RegexUtils.matchGroup("\\$\\{[\\w|.|-]+\\}","${s.s-s}+${ddd}");
-		System.out.println(subs);
-	}
 }

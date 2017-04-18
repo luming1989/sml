@@ -46,11 +46,16 @@ public class ManagedQuene {
 	
 	private boolean stop=false;
 	
+	private boolean fullErrIgnore=true;
+	
+	private int fullErrTimeout=100;
+	
 	private List<Execute> executes=new ArrayList<Execute>();
 	
 	private int timeout;
 	
 	private boolean ignoreLog=true;
+	
 	
 	
 	public  void init(){
@@ -74,8 +79,20 @@ public class ManagedQuene {
 		}
 		executes.clear();
 	}
-	
 	public void add(Task task){
+		if(queue.size()>=depth&&fullErrIgnore){
+				try {
+					Thread.sleep(fullErrTimeout);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				add(task);
+		}else{
+			addT(task);
+		}
+	}
+	
+	public synchronized void addT(Task task){
 		queue.add(task);
 		if(!ignoreLog)
 			LoggerHelper.info(getClass(),"add "+getManageName()+" total-"+getDepth()+",current-"+queue.size()+".");
@@ -96,7 +113,7 @@ public class ManagedQuene {
 				if(timeout<=0)
 					task.execute();
 				else{
-					exec = Executors.newCachedThreadPool();
+					exec = Executors.newSingleThreadExecutor();
 					Callable<Integer> call=new Callable<Integer>() {
 						public Integer call() throws Exception {
 							return new Inner(t).exe();
@@ -110,7 +127,8 @@ public class ManagedQuene {
 				if(future!=null)
 				future.cancel(true);
 			}catch (Exception e) {
-				LoggerHelper.error(getClass(),getErrorMsg()+"----->["+e.getMessage()+"]");
+				e.printStackTrace();
+				LoggerHelper.error(getClass(),String.format(getErrorMsg(),e.getMessage()));
 			}finally{
 				if(exec!=null)
 					exec.shutdown();
@@ -174,7 +192,7 @@ public class ManagedQuene {
 
 	public String getErrorMsg() {
 		if(errorMsg==null){
-			errorMsg=getManageName()+" of manageName has Error msg like [{}]!";
+			errorMsg=getManageName()+" of manageName has Error msg like [%s]!";
 		}
 		return errorMsg;
 	}
@@ -210,6 +228,22 @@ public class ManagedQuene {
 
 	public void setIgnoreLog(boolean ignoreLog) {
 		this.ignoreLog = ignoreLog;
+	}
+
+	public boolean isFullErrIgnore() {
+		return fullErrIgnore;
+	}
+
+	public void setFullErrIgnore(boolean fullErrIgnore) {
+		this.fullErrIgnore = fullErrIgnore;
+	}
+
+	public int getFullErrTimeout() {
+		return fullErrTimeout;
+	}
+
+	public void setFullErrTimeout(int fullErrTimeout) {
+		this.fullErrTimeout = fullErrTimeout;
 	}
 	
 	
