@@ -11,7 +11,7 @@ import org.hw.sml.support.queue.Task;
 import org.hw.sml.tools.ClassUtil;
 import org.hw.sml.tools.MapUtils;
 
-public class SchedulerPanner extends ManagedQuene{
+public class SchedulerPanner extends ManagedQuene<Task>{
 	private static Map<String,String> taskMapContain=MapUtils.newHashMap();
 	public void init(){
 		Enumeration<Object> keys=FrameworkConstant.otherProperties.keys();

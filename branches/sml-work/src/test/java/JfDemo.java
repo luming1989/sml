@@ -40,7 +40,7 @@ public class JfDemo {
 			System.out.println((System.currentTimeMillis()-begin)+"|----->"+data);
 			}*/
 		for(int i=0;i<3;i++){
-		Object obj=SmlAppContextUtils.getSmlContextUtils().query("area-pm","{\"FLUSHCACHE\":\"TRUE\",\"domains\":\"4gpr\"}");
+		Object obj=SmlAppContextUtils.getSmlContextUtils().query("videoEte-homepage-cell-detail","{\"timeType\":\"day\",\"area_id\":\"21\",\"time_id\":\"201704180000\"}");
 		System.out.println(JSON.toJSONString(obj));
 		}
 		//System.out.println(jf.getDefJt().queryForObject("select systimestamp from dual", Date.class));

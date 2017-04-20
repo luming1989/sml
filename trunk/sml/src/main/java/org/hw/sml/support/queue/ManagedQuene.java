@@ -18,7 +18,7 @@ import org.hw.sml.support.ManagedThread;
  * @author wen
  *
  */
-public class ManagedQuene {
+public class ManagedQuene<T extends Task> {
 	/**
 	 * 队列管理名称
 	 */
@@ -40,7 +40,7 @@ public class ManagedQuene {
 	/**
 	 * 队列名称
 	 */
-	private BlockingQueue<Task> queue;
+	private BlockingQueue<T> queue;
 	
 	private String errorMsg; 
 	
@@ -56,11 +56,13 @@ public class ManagedQuene {
 	
 	private boolean ignoreLog=true;
 	
+	private boolean timeoutRunning=true;
+	
 	
 	
 	public  void init(){
 		if(queue==null){
-			queue=new ArrayBlockingQueue<Task>(depth);
+			queue=new ArrayBlockingQueue<T>(depth);
 			LoggerHelper.info(getClass(),"manageName ["+getManageName()+"] has init depth "+depth+" !");
 		}
 		for(int i=1;i<=consumerThreadSize;i++){
@@ -79,7 +81,7 @@ public class ManagedQuene {
 		}
 		executes.clear();
 	}
-	public void add(Task task){
+	public void add(T task){
 		if(queue.size()>=depth&&fullErrIgnore){
 				try {
 					Thread.sleep(fullErrTimeout);
@@ -92,7 +94,7 @@ public class ManagedQuene {
 		}
 	}
 	
-	public synchronized void addT(Task task){
+	public synchronized void addT(T task){
 		queue.add(task);
 		if(!ignoreLog)
 			LoggerHelper.info(getClass(),"add "+getManageName()+" total-"+getDepth()+",current-"+queue.size()+".");
@@ -130,8 +132,12 @@ public class ManagedQuene {
 				e.printStackTrace();
 				LoggerHelper.error(getClass(),String.format(getErrorMsg(),e.getMessage()));
 			}finally{
-				if(exec!=null)
-					exec.shutdown();
+				if(exec!=null){
+					if(timeoutRunning)
+						exec.shutdown();
+					else
+						exec.shutdownNow();
+				}
 			}
 		}
 		protected void cleanup() {
@@ -182,11 +188,11 @@ public class ManagedQuene {
 		this.threadNamePre = threadNamePre;
 	}
 
-	public BlockingQueue<Task> getQueue() {
+	public BlockingQueue<T> getQueue() {
 		return queue;
 	}
 
-	public void setQueue(BlockingQueue<Task> queue) {
+	public void setQueue(BlockingQueue<T> queue) {
 		this.queue = queue;
 	}
 
@@ -244,6 +250,14 @@ public class ManagedQuene {
 
 	public void setFullErrTimeout(int fullErrTimeout) {
 		this.fullErrTimeout = fullErrTimeout;
+	}
+
+	public boolean isTimeoutRunning() {
+		return timeoutRunning;
+	}
+
+	public void setTimeoutRunning(boolean timeoutRunning) {
+		this.timeoutRunning = timeoutRunning;
 	}
 	
 	

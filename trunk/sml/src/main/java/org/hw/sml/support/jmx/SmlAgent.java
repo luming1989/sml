@@ -25,7 +25,6 @@ public class SmlAgent implements SmlAgentMBean {
 						SmlAppContextUtils.getSqlMarkupAbstractTemplate().destroy();
 					}
 					LoggerHelper.debug(SmlAgent.class,"sml is support before "+key +"...");
-					
 				} catch (Exception e) {
 					SmlAppContextUtils.getSqlMarkupAbstractTemplate().destroy();
 				}finally{
