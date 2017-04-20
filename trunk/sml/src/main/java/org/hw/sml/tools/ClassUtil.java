@@ -203,4 +203,9 @@ public class ClassUtil {
     	}
     	return true;
     }
+    public static Object getFieldValue(Object bean,String fieldName) throws IllegalArgumentException, IllegalAccessException{
+    	Field field=getField(bean.getClass(),fieldName);
+    	field.setAccessible(true);
+    	return convertValueToRequiredType(field.get(bean),field.getType());
+    }
 }

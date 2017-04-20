@@ -3,11 +3,14 @@ package org.hw.sml.support.ioc;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
 import org.hw.sml.FrameworkConstant;
+import org.hw.sml.core.resolver.JsEngine;
 import org.hw.sml.support.ClassHelper;
 import org.hw.sml.support.LoggerHelper;
 import org.hw.sml.support.ioc.annotation.Bean;
@@ -64,6 +67,20 @@ public class BeanHelper {
 				if(classpath.startsWith("[")&&classpath.endsWith("]")){
 					classpath=classpath.substring(1,classpath.length()-1);
 					bean=Array.newInstance(Class.forName(classpath),beanKeyValue.size()-1);
+				}else if(classpath.endsWith(")")&&classpath.contains("(")){
+					//通过构造初始化bean
+					String[] clps=classpath.split("\\(");
+					String clp=clps[0],clpBeanElp=clps[1].substring(0, clps[1].length()-1);
+					String[] clpBeans=clpBeanElp.split(",");
+					Object[] consts=new Object[clpBeans.length];
+					Class<?>[] constCls=new Class<?>[clpBeans.length];
+					for(int i=0;i<consts.length;i++){
+						String keyP=clpBeans[i];
+						B b=evel(keyP);
+						consts[i]=b.t;
+						constCls[i]=b.c;
+					}
+					bean=Class.forName(clp).getConstructor(constCls).newInstance(consts);
 				}else{
 					if(!Boolean.valueOf(beanKeyValue.get("passErr"))){
 						bean=ClassUtil.newInstance(classpath);
@@ -336,7 +353,7 @@ public class BeanHelper {
 	public static String getValue(String key){
 		return FrameworkConstant.getProperty(key);
 	}
-	public static Object getValue(String type,String key){
+	public static Object getValue(String type,String key) throws IllegalArgumentException, IllegalAccessException{
 		if(type==null){
 			//return key;
 		}else if(type.equals("v")){
@@ -350,10 +367,11 @@ public class BeanHelper {
 		if(key.startsWith("${")&&key.endsWith("}")){
 			return getValue(key.substring(2,key.length()-1));
 		}else if(key.startsWith("#{")&&key.endsWith("}")){
-			if(!beanErrInfo.containsKey(key))
-				return beanMap.get(key.substring(2,key.length()-1));
-			else
-				return "";
+			String keyElp=key.substring(2,key.length()-1);
+			 if(!beanErrInfo.containsKey(keyElp))
+				return beanMap.get(keyElp);
+			else 
+			    return "";
 		}
 		return key;
 	}
@@ -390,6 +408,76 @@ public class BeanHelper {
 	private static String[] getPorM(String key){
 		String[] pms= key.split("-");
 		return new String[]{pms[0],pms[1],pms.length==3?pms[2]:null};
+	}
+	private static class B<T>{
+		private T t;
+		private Class<T> c;
+		public B(){}
+		public B(T t, Class<T> c) {
+			super();
+			this.t = t;
+			this.c = c;
+		}
+		
+	}
+	public static Object evelV(String elp) throws IllegalArgumentException, IllegalAccessException{
+		return evel(elp).t;
+	}
+	public static B evel(String elp) throws IllegalArgumentException, IllegalAccessException{
+		Object value=null;
+		if(elp.startsWith("${")&&elp.endsWith("}")){
+			value= getValue(null,elp);
+		}else if(elp.startsWith("#{")&&elp.endsWith("}")){
+			String keyElp=elp.substring(2,elp.length()-1);
+			if(elp.contains(".")){
+				String[] bf=keyElp.split("\\.");
+				String bn=bf[0];String bnelp=bf[1];
+				Assert.isTrue(beanMap.containsKey(bn),"bean "+bn+" is not exists!");
+				if(bnelp.contains("(")&&bnelp.contains(")")){
+					
+				}else{
+					value= ClassUtil.getFieldValue(beanMap.get(bn),bnelp);
+				}
+			}else if(keyElp.contains("[")&&keyElp.endsWith("]")){
+				String elps[]=keyElp.split("\\[");
+				String bn=elps[0];int index=Integer.parseInt(elps[1].substring(0,elps[1].length()-1));
+				Assert.isTrue(beanMap.containsKey(bn),"bean "+bn+" is not exists!");
+				Object b=beanMap.get(bn);
+				if(b.getClass().isArray()){
+				}else if(b instanceof List){
+					value= ((List)b).get(index);
+				}else{
+					Assert.isTrue(false, "elp["+elp+"] is not a array or list!");
+				}
+			}else{
+				Assert.isTrue(beanMap.containsKey(keyElp),"bean "+keyElp+" is not exists!");
+				value=beanMap.get(keyElp);
+			}
+		}else{
+			String keyP=elp;
+			B b=new B();
+			if(keyP.startsWith("''")&&keyP.endsWith("''")){
+				b.t=keyP.substring(2,keyP.length()-2).charAt(0);b.c=Character.class;
+			}else if(keyP.startsWith("'")&&keyP.endsWith("'")){
+				b.t=keyP.substring(1,keyP.length()-1).charAt(0);b.c=char.class;
+			} else if(keyP.startsWith("\"")&&keyP.endsWith("\"")){
+				b.t=keyP.substring(1, keyP.length()-1);b.c=String.class;
+			}else if(keyP.endsWith("l")||keyP.endsWith("L")){
+				b.t=Long.parseLong(keyP.substring(0, keyP.length()-1));b.c=keyP.endsWith("L")?Long.class:long.class;
+			}else if(keyP.endsWith("d")||keyP.endsWith("D")){
+				b.t=Double.parseDouble(keyP.substring(0, keyP.length()-1));b.c=keyP.endsWith("D")?Double.class:double.class;
+			}else if(keyP.endsWith("f")||keyP.endsWith("F")){
+				b.t=Float.parseFloat(keyP.substring(0, keyP.length()-1));b.c=keyP.endsWith("F")?Float.class:float.class;
+			}else if(keyP.endsWith("s")||keyP.endsWith("S")){
+				b.t=Short.parseShort(keyP.substring(0, keyP.length()-1));b.c=keyP.endsWith("S")?Short.class:short.class;
+			}else if(keyP.endsWith("i")||keyP.endsWith("I")){
+				b.t=Integer.parseInt(keyP.substring(0, keyP.length()-1));b.c=keyP.endsWith("I")?Integer.class:int.class;
+			}else{			
+				b.t=Boolean.valueOf(keyP);b.c=(keyP.equals("TRUE")||keyP.equals("FLASE"))?Boolean.class:boolean.class;
+			}
+			return b;
+		}
+		return new B(value,value.getClass());
 	}
 	private static void methodInvoke(final Object bean,final Method method,boolean igErr,boolean isDelay,final long ms) throws Exception{
 		if(isDelay){
