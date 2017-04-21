@@ -1,6 +1,7 @@
 package org.hw.sml.tools;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.List;
@@ -160,22 +161,27 @@ public class ClassUtil {
     	return result;
     }
     public static Method getMethod(Class<?> clazz,String name){
+    	return getMethod(clazz, name,null);
+    }
+    public static Method getMethod(Class<?> clazz,String name,Class<?>[] pt){
     	if(clazz==null){
     		return null;
     	}
     	Method[] ms=clazz.getDeclaredMethods();
     	for(Method m:ms){
     		if(m.getName().equals(name)){
+    			if(pt==null||(mather(m.getParameterTypes(), pt)))
     			return m;
     		}
     	}
     	ms=clazz.getMethods();
     	for(Method m:ms){
     		if(m.getName().equals(name)){
+    			if(pt==null||(mather(m.getParameterTypes(), pt)))
     			return m;
     		}
     	}
-    	return getMethod(clazz.getSuperclass(),name);
+    	return getMethod(clazz.getSuperclass(),name,pt);
     }
     public static Field getField(Class<?> clazz,String name){
     	if(clazz==null){
@@ -203,9 +209,43 @@ public class ClassUtil {
     	}
     	return true;
     }
+    private static boolean mather(Class<?>[] elSrc,Class<?>[] clsrc){
+    	if(clsrc==null&&elSrc==null){
+    		return true;
+    	}
+    	if(clsrc==null){return false;}
+    	if(elSrc==null){return false;}
+    	if(clsrc.length==elSrc.length){
+    		for(int i=0;i<clsrc.length;i++){
+    			if(!elSrc[i].isAssignableFrom(clsrc[i])){
+    				return false;
+    			}
+    		}
+    	}
+    	return true;
+    }
     public static Object getFieldValue(Object bean,String fieldName) throws IllegalArgumentException, IllegalAccessException{
+    	if(bean.getClass().isArray()){
+    		if(fieldName.equals("length")){
+    			return ((Object[])bean).length;
+    		}
+    	}
     	Field field=getField(bean.getClass(),fieldName);
+    	Assert.notNull(field,"bean ["+bean.getClass()+"]-"+fieldName+" not field!");
     	field.setAccessible(true);
     	return convertValueToRequiredType(field.get(bean),field.getType());
+    }
+    public static Object invokeMethod(Object bean,String methodName,Class<?>[] parameterTypes,Object[] paramValues) throws IllegalArgumentException, SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException{
+    	Method method=null;
+    	try{
+    		 method=bean.getClass().getMethod(methodName, parameterTypes);
+    		 method.setAccessible(true);
+    		return	method.invoke(bean,paramValues);
+    	}catch(Exception e){
+    		method=getMethod(bean.getClass(),methodName);
+    		method.setAccessible(true);
+    		return method.invoke(bean,paramValues);
+    	}
+    	
     }
 }

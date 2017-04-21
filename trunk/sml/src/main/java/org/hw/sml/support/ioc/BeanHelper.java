@@ -3,14 +3,11 @@ package org.hw.sml.support.ioc;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
 import org.hw.sml.FrameworkConstant;
-import org.hw.sml.core.resolver.JsEngine;
 import org.hw.sml.support.ClassHelper;
 import org.hw.sml.support.LoggerHelper;
 import org.hw.sml.support.ioc.annotation.Bean;
@@ -27,9 +24,9 @@ import org.hw.sml.tools.RegexUtils;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class BeanHelper {
 	public static final String IOC_BEAN_SCAN="ioc-bean-scan";
-	private static  Map<String,Object> beanMap=MapUtils.newHashMap();
-	private static  Map<String,Object> propertyInitBeanMap=MapUtils.newHashMap();
-	private static Map<String,Boolean> beanErrInfo=MapUtils.newHashMap();
+	private static  Map<String,Object> beanMap=MapUtils.newLinkedHashMap();
+	private static  Map<String,Object> propertyInitBeanMap=MapUtils.newLinkedHashMap();
+	private static Map<String,Boolean> beanErrInfo=MapUtils.newLinkedHashMap();
 	static{
 		try {
 			String packageName=getValue(IOC_BEAN_SCAN);
@@ -423,27 +420,21 @@ public class BeanHelper {
 	public static Object evelV(String elp) throws IllegalArgumentException, IllegalAccessException{
 		return evel(elp).t;
 	}
-	public static B evel(String elp) throws IllegalArgumentException, IllegalAccessException{
+	private static B evel(String elp) throws IllegalArgumentException, IllegalAccessException{
 		Object value=null;
 		if(elp.startsWith("${")&&elp.endsWith("}")){
 			value= getValue(null,elp);
 		}else if(elp.startsWith("#{")&&elp.endsWith("}")){
 			String keyElp=elp.substring(2,elp.length()-1);
 			if(elp.contains(".")){
-				String[] bf=keyElp.split("\\.");
-				String bn=bf[0];String bnelp=bf[1];
-				Assert.isTrue(beanMap.containsKey(bn),"bean "+bn+" is not exists!");
-				if(bnelp.contains("(")&&bnelp.contains(")")){
-					
-				}else{
-					value= ClassUtil.getFieldValue(beanMap.get(bn),bnelp);
-				}
+				value=loopElp(keyElp);
 			}else if(keyElp.contains("[")&&keyElp.endsWith("]")){
 				String elps[]=keyElp.split("\\[");
 				String bn=elps[0];int index=Integer.parseInt(elps[1].substring(0,elps[1].length()-1));
 				Assert.isTrue(beanMap.containsKey(bn),"bean "+bn+" is not exists!");
 				Object b=beanMap.get(bn);
 				if(b.getClass().isArray()){
+					value=Array.get(b, index);
 				}else if(b instanceof List){
 					value= ((List)b).get(index);
 				}else{
@@ -472,12 +463,14 @@ public class BeanHelper {
 				b.t=Short.parseShort(keyP.substring(0, keyP.length()-1));b.c=keyP.endsWith("S")?Short.class:short.class;
 			}else if(keyP.endsWith("i")||keyP.endsWith("I")){
 				b.t=Integer.parseInt(keyP.substring(0, keyP.length()-1));b.c=keyP.endsWith("I")?Integer.class:int.class;
-			}else{			
+			}else if(keyP.equalsIgnoreCase("true")||keyP.equalsIgnoreCase("false")){			
 				b.t=Boolean.valueOf(keyP);b.c=(keyP.equals("TRUE")||keyP.equals("FLASE"))?Boolean.class:boolean.class;
+			}else{
+				b.t=keyP;b.c=Object.class;
 			}
 			return b;
 		}
-		return new B(value,value.getClass());
+		return new B(value,value==null?null:value.getClass());
 	}
 	private static void methodInvoke(final Object bean,final Method method,boolean igErr,boolean isDelay,final long ms) throws Exception{
 		if(isDelay){
@@ -503,6 +496,50 @@ public class BeanHelper {
 				method.invoke(bean,new Object[]{});
 			}
 		}
-		
+	}
+	public static Object loopElp(String elp) throws IllegalArgumentException, IllegalAccessException{
+		String elps[]=elp.split("\\.");
+		Object bean=null;
+		if(elps[0].contains("[")&&elps[0].endsWith("]")){
+			bean=evelV("#{"+elps[0]+"}");
+		}else
+			bean=getBean(elps[0]);
+		if(elps.length==1){
+			return bean;
+		}
+		return loopElp(bean,elps[1],elps,1);
+	}
+	private static Object loopElp(Object bean,String bnelp,String[] ss,int pos) throws IllegalArgumentException, IllegalAccessException{
+		Object value=null;
+		if(bnelp.contains("(")&&bnelp.contains(")")){
+			String[] melp=bnelp.split("\\(");
+			String mn=melp[0];
+			String clpP=melp[1].substring(0,melp[1].length()-1);
+			String[] clpBeans=new String[0];
+			if(!clpP.equals(""))
+			 clpBeans=clpP.split(",");
+			Object[] consts=new Object[clpBeans.length];
+			Class<?>[] constCls=new Class<?>[clpBeans.length];
+			for(int i=0;i<consts.length;i++){
+				String keyP=clpBeans[i];
+				B b=evel(keyP);
+				consts[i]=b.t;
+				constCls[i]=b.c;
+			}
+			try {
+				value=ClassUtil.invokeMethod(bean, mn, constCls, consts);
+			}  catch (Exception e) {
+				Assert.isTrue(false,"elp-["+bnelp+"] error["+e+"]!");
+			}
+		}else{
+			value= ClassUtil.getFieldValue(bean,bnelp);
+		}
+		if(value==null){
+			return null;
+		}
+		if(ss.length==pos+1){
+			return value;
+		}
+		return loopElp(value,ss[pos+1],ss,pos+1);
 	}
 }

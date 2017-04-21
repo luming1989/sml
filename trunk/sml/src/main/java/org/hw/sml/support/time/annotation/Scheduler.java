@@ -1,4 +1,4 @@
-package org.hw.sml.support.ioc.annotation;
+package org.hw.sml.support.time.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,5 +9,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Scheduler {
     String value();
+    boolean triggerdCondition() default true;
     public static String min1="min1|00|00";
 }
