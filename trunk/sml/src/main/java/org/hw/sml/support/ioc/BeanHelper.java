@@ -29,6 +29,7 @@ public class BeanHelper {
 	private static Map<String,Boolean> beanErrInfo=MapUtils.newLinkedHashMap();
 	static{
 		try {
+			beanMap.put("smlBeanHelper", new BeanHelper());
 			String packageName=getValue(IOC_BEAN_SCAN);
 			List<Class<?>> classes=MapUtils.newArrayList();
 			boolean isAnnotationScan=packageName!=null&&packageName.trim().length()>0;
@@ -541,5 +542,8 @@ public class BeanHelper {
 			return value;
 		}
 		return loopElp(value,ss[pos+1],ss,pos+1);
+	}
+	public static void main(String[] args) {
+		BeanHelper.start();
 	}
 }
