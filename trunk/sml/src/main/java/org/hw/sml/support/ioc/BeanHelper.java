@@ -3,6 +3,7 @@ package org.hw.sml.support.ioc;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,7 @@ import org.hw.sml.tools.RegexUtils;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class BeanHelper {
-	public static final String IOC_BEAN_SCAN="ioc-bean-scan";
+	public  static final  String IOC_BEAN_SCAN="ioc-bean-scan";
 	private static  Map<String,Object> beanMap=MapUtils.newLinkedHashMap();
 	private static  Map<String,Object> propertyInitBeanMap=MapUtils.newLinkedHashMap();
 	private static Map<String,Boolean> beanErrInfo=MapUtils.newLinkedHashMap();
@@ -512,7 +513,7 @@ public class BeanHelper {
 	}
 	private static Object loopElp(Object bean,String bnelp,String[] ss,int pos) throws IllegalArgumentException, IllegalAccessException{
 		Object value=null;
-		if(bnelp.contains("(")&&bnelp.contains(")")){
+		if(bnelp.contains("(")&&bnelp.endsWith(")")){
 			String[] melp=bnelp.split("\\(");
 			String mn=melp[0];
 			String clpP=melp[1].substring(0,melp[1].length()-1);
