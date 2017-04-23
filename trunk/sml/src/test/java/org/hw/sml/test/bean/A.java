@@ -1,12 +1,13 @@
 package org.hw.sml.test.bean;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import org.hw.sml.support.el.ElContext;
 import org.hw.sml.support.el.ElException;
 import org.hw.sml.support.el.SmlElContext;
 import org.hw.sml.support.ioc.BeanHelper;
-import org.hw.sml.support.ioc.PropertiesHelper;
 
 import com.alibaba.fastjson.JSON;
 
@@ -28,7 +29,7 @@ public class A {
 	public String get(String[] strs){
 		return Arrays.asList(strs).toString();
 	}
-	public A(String str, Integer i, Character c, Double d, Long l, Short s, Float f, Boolean flag) {
+	public A(String str, int i, char c, double d, long l, short s, Float f, Boolean flag) {
 		super();
 		this.str = str;
 		this.i = i;
@@ -69,12 +70,19 @@ public class A {
 		System.out.println(BeanHelper.evelV("{a:{a:2,c:3},b:'eeeee',c:(['a','b','c','d',({a:({a:2,c:3}),b:'eeeee'})])}"));
 		System.out.println(BeanHelper.evelV("#{(['a','b','c','d',{a:{a:2,c:3},b:'eeeee'}]).containsAll((['a','b']))}"));
 		System.out.println(BeanHelper.evelV("#{('a').length().toString().concat(('dess,sss')).equals(('1dess,sss'))}"));
-		System.out.println(BeanHelper.evelV("#{sml.dss.get('defJt')}"));
+		System.out.println(BeanHelper.evelV("#{([1]).toArray()}"));
+		//System.out.println(BeanHelper.evelV("#{sml.getDefJt().queryForList('select * from dual where 1<? and 'a'||'c'=?',(#{([2,'ace']).toArray()}))}"));
 		Map map=(Map) BeanHelper.evelV("{'a':1,'b':2,'c':({234i:'3','e':'4','f':({'g':'6'})})}");
 		System.out.println(map);
+		System.out.println(BeanHelper.evelV("{a:({b:1,c:   ({d:1})   })}"));
+		List<Map> list=(List<Map>) BeanHelper.evelV("([({a:1,b:2,c:3}),({a:2,b:3,c:2}),({a:3,b:3,c:1})])");
+		BeanHelper.getBean(SmlElContext.class).addBean("testMap",list);
+		System.out.println(BeanHelper.evelV("#{testMap}").getClass());
+		System.out.println(BeanHelper.evelV("#{smlMapHelper.sort(#{testMap},'a','desc')}"));
+		System.out.println(list);
 		System.out.println(System.currentTimeMillis()-start);
 		//ArrayList c;
-		System.out.println();
+		System.out.println(char.class.isAssignableFrom(Character.class));
 		//"".equals(anObject)
 	}
 

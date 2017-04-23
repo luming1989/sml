@@ -2,24 +2,31 @@ package org.hw.sml.support.el;
 
 import java.util.Map;
 
+import org.hw.sml.tools.DateTools;
 import org.hw.sml.tools.MapUtils;
 
 public abstract class ElContext{
 	public ElContext(){
-		addBean("smlElHelper",this);
+		
 	}
 	protected Map<String,Object> beanMap=MapUtils.newHashMap();
 	
 	protected Map<String,String> properties=MapUtils.newHashMap();
 	@SuppressWarnings("unchecked")
-	public  <T extends ElContext>T withBeanMap( Map<String,Object> beanMap){
+	public  <T extends ElContext>T withBeanMap(Map<String,Object> beanMap){
 		this.beanMap=beanMap;
-		addBean("elContext",this);
 		return (T)this;
 	}
 	@SuppressWarnings("unchecked")
 	public  <T extends ElContext>T withProperties(Map<String,String> properties){
 		this.properties=properties;
+		return (T)this;
+	}
+	@SuppressWarnings("unchecked")
+	public <T extends ElContext> T init(){
+		addBean("smlElHelper",this);
+		addBean("smlDateHelper",new DateTools());
+		addBean("smlMapHelper",new MapUtils());
 		return (T)this;
 	}
 	@SuppressWarnings("unchecked")

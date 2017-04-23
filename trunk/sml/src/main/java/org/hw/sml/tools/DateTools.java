@@ -24,7 +24,9 @@ public class DateTools {
 	public static final SimpleDateFormat sdf_mi2 = new SimpleDateFormat("yyyyMMddHHmmss");
 	public static final SimpleDateFormat sdf_dd = new SimpleDateFormat("yyyyMMdd");
 	public static final SimpleDateFormat sdf_hh = new SimpleDateFormat("yyyyMMddHH");
-
+	public static Date date(){
+		return new Date();
+	}
 	/** 格式化取整时间 */
 	public static Date trunc(Date date, int type) {
 		Calendar cal = Calendar.getInstance();

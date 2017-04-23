@@ -38,7 +38,7 @@ public class BeanHelper {
 	static{
 		try {
 			propertiesHelper.withProperties(FrameworkConstant.otherProperties).renameValue(KEY_BEAN_PREFIX).renameValue(KEY_BEAN_PREFIX);
-			smlElContext.withBeanMap(beanMap).withProperties(propertiesHelper.getValues());
+			smlElContext.withBeanMap(beanMap).withProperties(propertiesHelper.getValues()).init();
 			beanMap.put("smlBeanHelper", new BeanHelper());
 			beanMap.put("smlPropertiesHelper",propertiesHelper);
 			String packageName=getValue(IOC_BEAN_SCAN);
@@ -74,7 +74,7 @@ public class BeanHelper {
 						consts[i]=b.getV();
 						constCls[i]=b.getC();
 					}
-					bean=Class.forName(clp).getConstructor(constCls).newInstance(consts);
+					bean=ClassUtil.newInstance(Class.forName(clp), constCls, consts);
 				}else{
 					if(!Boolean.valueOf(beanKeyValue.get("passErr"))){
 						bean=ClassUtil.newInstance(classpath);

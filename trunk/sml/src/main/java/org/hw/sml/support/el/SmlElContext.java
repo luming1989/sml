@@ -15,6 +15,7 @@ public  class SmlElContext extends ElContext{
 		super();
 	}
 	public BeanType evelBeanType(String elp) throws ElException {
+		elp=elp.trim();
 		if(elp.startsWith("(")&&elp.endsWith(")")){
 			elp=elp.substring(1, elp.length()-1);
 		}
