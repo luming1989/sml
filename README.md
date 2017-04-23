@@ -1,6 +1,23 @@
 # sml
 小、可配置维护的、灵活的java操作工具类（200kb），易开发可配置扩展程序。
 
+##Getting started
+###Add the maven dependency
+```xml
+<dependency>
+    <groupId>org.hw.sml</groupId>
+    <artifactId>sml</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+###add repository
+```xml
+<repository>
+   <id>hw-snapshots</id>
+   <name>hw-snapshots</name>
+   <url>http://23.247.25.117:8081/nexus/content/repositories/snapshots</url>
+</repository>
+```
 ## IOC 功能
 没有xml，完全通过属性文件进行bean的生命周期管理，默认属性文件：`sml.properties`
 ```html
@@ -54,7 +71,7 @@
     }
 ```
 ## jdbc 数据库访问
-   提供了简单的JdbcTemplate对象操作数据库并结合标识语为动态sql执行提供执行引擎
+   提供了简单的JdbcTemplate对象操作数据库，结合标签语法为动态sql提供执行引擎
 
 1、mybatis,ibatis书写sql的方便，但调整xml配置文件整体服务需要重新启动
 
@@ -127,5 +144,5 @@ result
 ```
    上面两类内容进行替换
    
-   ## ext-httpServer功能  50kb
+ ## ext-httpServer功能  50kb
       提供内置httpServer，为微服务体系提供基础。
