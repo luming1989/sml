@@ -80,7 +80,7 @@ code
 ```	
 result
 ```html
-	  sqlString:select * from table t where 1=1 and t.a=? and t.b in(?,?,?)
+	  sqlString:select * from table t where t.a=? and t.b in(?,?,?)
 	  params   :[v1, v2, v3, v4]
 ```
 multi-mark example sql
@@ -122,11 +122,10 @@ result
 ```html
    	<select id="table_choose">
 		//todo
-	</select>
-			
+	</select>	
 	<included id="table_choose"/>
 ```
    上面两类内容进行替换
    
-   ##ext-httpServer功能  50kb
-   提供内置httpServer，为微服务体系提供基础。
+   ## ext-httpServer功能  50kb
+      提供内置httpServer，为微服务体系提供基础。
