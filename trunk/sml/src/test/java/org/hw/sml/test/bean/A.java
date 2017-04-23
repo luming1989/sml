@@ -1,8 +1,12 @@
 package org.hw.sml.test.bean;
 
 import java.util.Arrays;
+import java.util.Map;
 
+import org.hw.sml.support.el.ElException;
+import org.hw.sml.support.el.SmlElContext;
 import org.hw.sml.support.ioc.BeanHelper;
+import org.hw.sml.support.ioc.PropertiesHelper;
 
 import com.alibaba.fastjson.JSON;
 
@@ -40,26 +44,37 @@ public class A {
 		return "A [str=" + str + ", i=" + i + ", c=" + c + ", d=" + d + ", l=" + l + ", s=" + s + ", f=" + f + ", flag="
 				+ flag + "]";
 	}
-	public static void main(String[] args) throws IllegalArgumentException, IllegalAccessException {
+	public static void main(String[] args) throws IllegalArgumentException, IllegalAccessException, ElException {
 		System.out.println(new Object().getClass().isAssignableFrom(String.class));
 		BeanHelper.start();
+		//System.out.println(BeanHelper.getBean(PropertiesHelper.class).getValues());
+		long start=System.currentTimeMillis();
 		System.out.println(Arrays.asList(A.class.getConstructors()[1].getParameterTypes()));
 		System.out.println(BeanHelper.getBean(A.class));
 		System.out.println(BeanHelper.evelV("12.0d"));
 		System.out.println(BeanHelper.evelV("#{hi.length}"));
 		System.out.println(BeanHelper.evelV("#{mk.get(2i)}"));
-		System.out.println(BeanHelper.evelV("#{aBean.get(\"1\",\"2\",\"3\")}"));
+		System.out.println(BeanHelper.evelV("#{aBean.get('1','2','3')}"));
 		System.out.println(JSON.toJSONString(BeanHelper.evelV("#{hi[1]}")));
 		System.out.println(BeanHelper.evelV("#{aBean.get(#{mark})}"));
-		BeanHelper.evelV("#{sml.cacheManager.set(\"hlw\",123,1i)}");
+		BeanHelper.evelV("#{sml.cacheManager.set('hlw',123,1i)}");
 		//System.out.println(sml.getCacheManager().getKeyStart(""));
-		System.out.println(BeanHelper.loopElp("sml.cacheManager.getKeyStart(\"\")"));
+		System.out.println(BeanHelper.evelV("#{sml.cacheManager.getKeyStart('')}"));
 		//System.out.println(BeanHelper.evelV("#{sml.smlContextUtils.query(\"area-pm\",\"\")}"));
 		System.out.println(BeanHelper.evelV("#{sml.cacheManager.clear()}"));
 		System.out.println(BeanHelper.evelV("${username}"));
-		System.out.println(BeanHelper.loopElp("sml.cacheManager.getKeyStart(\"\")"));
-		System.out.println(BeanHelper.loopElp("sml.getJdbc(\"defJt\").dataSource.toString().equals(#{sml})"));
+		System.out.println(BeanHelper.evelV("#{sml.cacheManager.getKeyStart('')}"));
+		System.out.println(BeanHelper.evelV("#{sml.getJdbc('defJt').dataSource.toString().equals(#{sml.getJdbc('defJt').dataSource.toString()})}"));
+		System.out.println(BeanHelper.evelV("'aaaad,dd,d'"));
+		System.out.println(BeanHelper.evelV("{a:{a:2,c:3},b:'eeeee',c:(['a','b','c','d',({a:({a:2,c:3}),b:'eeeee'})])}"));
+		System.out.println(BeanHelper.evelV("#{(['a','b','c','d',{a:{a:2,c:3},b:'eeeee'}]).containsAll((['a','b']))}"));
+		System.out.println(BeanHelper.evelV("#{('a').length().toString().concat(('dess,sss')).equals(('1dess,sss'))}"));
+		System.out.println(BeanHelper.evelV("#{sml.dss.get('defJt')}"));
+		Map map=(Map) BeanHelper.evelV("{'a':1,'b':2,'c':({234i:'3','e':'4','f':({'g':'6'})})}");
+		System.out.println(map);
+		System.out.println(System.currentTimeMillis()-start);
 		//ArrayList c;
+		System.out.println();
 		//"".equals(anObject)
 	}
 

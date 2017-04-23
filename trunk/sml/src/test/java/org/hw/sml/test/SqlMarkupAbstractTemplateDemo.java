@@ -1,16 +1,24 @@
 package org.hw.sml.test;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.imageio.stream.FileImageInputStream;
 import javax.sql.DataSource;
 
+import org.apache.commons.io.IOUtils;
 import org.hw.sml.core.SqlMarkupTemplate;
 import org.hw.sml.jdbc.JdbcTemplate;
 import org.hw.sml.jdbc.impl.DefaultDataSource;
 import org.hw.sml.jdbc.impl.DefaultJdbcTemplate;
 import org.hw.sml.queryplugin.JsonMapper;
+import org.hw.sml.support.CallableHelper;
 import org.hw.sml.tools.Maps;
 import org.junit.Test;
 
@@ -18,7 +26,7 @@ import org.junit.Test;
 
 public class SqlMarkupAbstractTemplateDemo {
 	@Test
-	public static  void testQuery() throws SQLException {
+	public static  void testQuery() throws SQLException, FileNotFoundException, IOException {
 		DefaultDataSource dataSource2=new DefaultDataSource();
 		dataSource2.setDriverClassName("oracle.jdbc.driver.OracleDriver");
 		dataSource2.setUrl("jdbc:oracle:thin:@10.221.247.43:1521/ipms");
@@ -39,11 +47,16 @@ public class SqlMarkupAbstractTemplateDemo {
 		st.init();
 		//System.out.println(jdbcTemplate.queryForList("select 1 from DM_CO_BA_CFG_RCPT_IF where id like '%'||?||'%'", new Object[]{"-test"}));
 		for(int i=0;i<1;i++){
-			Object obj=st.getSmlContextUtils().query("area-pm",new Maps().put("FLUSHCACHE","true").getMap());
-			System.out.println(obj);
+			//Object obj=st.getSmlContextUtils().query("area-pm",new Maps().put("FLUSHCACHE","true").getMap());
+			//System.out.println(obj);
+			List<String> sqls=Arrays.asList(IOUtils.toString(new FileInputStream("D:\\temp\\2017-04-22_14-30-00-dm_re_ba_rel_hot_cell1.sql"),"gbk").split(";"));
+			for(int j=0;j<sqls.size();j+=1000){
+				jdbcTemplate.update(sqls.subList(j, j+1000));
+				System.out.println(j);
+			}
 			}
 	}
-	public static void main(String[] args) throws SQLException, InterruptedException {
+	public static void main(String[] args) throws SQLException, InterruptedException, FileNotFoundException, IOException {
 		testQuery();
 	}
 }

@@ -3,7 +3,6 @@ package org.hw.sml.support.ioc;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +10,10 @@ import java.util.Map;
 import org.hw.sml.FrameworkConstant;
 import org.hw.sml.support.ClassHelper;
 import org.hw.sml.support.LoggerHelper;
+import org.hw.sml.support.el.BeanType;
+import org.hw.sml.support.el.ElContext;
+import org.hw.sml.support.el.ElException;
+import org.hw.sml.support.el.SmlElContext;
 import org.hw.sml.support.ioc.annotation.Bean;
 import org.hw.sml.support.ioc.annotation.Init;
 import org.hw.sml.support.ioc.annotation.Inject;
@@ -20,6 +23,7 @@ import org.hw.sml.tools.Assert;
 import org.hw.sml.tools.ClassUtil;
 import org.hw.sml.tools.MapUtils;
 import org.hw.sml.tools.RegexUtils;
+import org.hw.sml.tools.Strings;
 
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -28,9 +32,15 @@ public class BeanHelper {
 	private static  Map<String,Object> beanMap=MapUtils.newLinkedHashMap();
 	private static  Map<String,Object> propertyInitBeanMap=MapUtils.newLinkedHashMap();
 	private static Map<String,Boolean> beanErrInfo=MapUtils.newLinkedHashMap();
+	private static ElContext smlElContext=new SmlElContext();
+	private static PropertiesHelper propertiesHelper=new PropertiesHelper();
+	public static final String KEY_BEAN_PREFIX="bean-";
 	static{
 		try {
+			propertiesHelper.withProperties(FrameworkConstant.otherProperties).renameValue(KEY_BEAN_PREFIX).renameValue(KEY_BEAN_PREFIX);
+			smlElContext.withBeanMap(beanMap).withProperties(propertiesHelper.getValues());
 			beanMap.put("smlBeanHelper", new BeanHelper());
+			beanMap.put("smlPropertiesHelper",propertiesHelper);
 			String packageName=getValue(IOC_BEAN_SCAN);
 			List<Class<?>> classes=MapUtils.newArrayList();
 			boolean isAnnotationScan=packageName!=null&&packageName.trim().length()>0;
@@ -41,24 +51,9 @@ public class BeanHelper {
 				}
 			}
 			//对属性文件bean读取解析
-			Enumeration<Object> keys=FrameworkConstant.otherProperties.keys();
-			while(keys.hasMoreElements()){
-				String key=keys.nextElement().toString();
-				if(!key.startsWith("bean-")){
-					String value=getValue(key);
-					List<String> ms=RegexUtils.matchGroup("\\$\\{[\\w|.|-]+\\}",value);
-					if(ms.size()==0) continue;
-					for(String m:ms){
-						String vt=getValue(m.substring(2,m.length()-1));
-						if(vt!=null)
-						value=value.replace(m,vt);
-					}
-					FrameworkConstant.otherProperties.put(key, value);
-					//
-					continue;
-				}
-				String beanName=key.replaceFirst("bean-","");
-				Map<String,String> beanKeyValue=getBeanKeyValue(key);
+			for(Map.Entry<String,String> entry:propertiesHelper.getValuesByKeyStart(KEY_BEAN_PREFIX).entrySet()){
+				String beanName=entry.getKey().replaceFirst(KEY_BEAN_PREFIX,"");
+				Map<String,String> beanKeyValue=getBeanKeyValue(entry.getKey());
 				String classpath=beanKeyValue.get("class");
 				Assert.notNull(classpath,"bean["+beanName+"] class is null!");
 				Assert.isTrue(!beanMap.containsKey(beanName),"bean["+beanName+"] name is conflict!");
@@ -68,16 +63,16 @@ public class BeanHelper {
 					bean=Array.newInstance(Class.forName(classpath),beanKeyValue.size()-1);
 				}else if(classpath.endsWith(")")&&classpath.contains("(")){
 					//通过构造初始化bean
-					String[] clps=classpath.split("\\(");
-					String clp=clps[0],clpBeanElp=clps[1].substring(0, clps[1].length()-1);
-					String[] clpBeans=clpBeanElp.split(",");
+					String clp=classpath.substring(0,classpath.indexOf("("));
+					String clpBeanElp=classpath.substring(classpath.indexOf("(")+1,classpath.length()-1);
+					String[] clpBeans=new Strings(clpBeanElp).splitToken(',','(',')');
 					Object[] consts=new Object[clpBeans.length];
 					Class<?>[] constCls=new Class<?>[clpBeans.length];
 					for(int i=0;i<consts.length;i++){
 						String keyP=clpBeans[i];
-						B b=evel(keyP);
-						consts[i]=b.t;
-						constCls[i]=b.c;
+						BeanType b=smlElContext.evelBeanType(keyP);
+						consts[i]=b.getV();
+						constCls[i]=b.getC();
 					}
 					bean=Class.forName(clp).getConstructor(constCls).newInstance(consts);
 				}else{
@@ -100,8 +95,8 @@ public class BeanHelper {
 				for(Class<?> clazz:classes){
 					Bean bean=clazz.getAnnotation(Bean.class);
 					String beanName=bean.value();
-					if(beanName==null||beanName.trim().length()==0){
-						beanName=toLowerForStart(clazz.getSimpleName());
+					if(new Strings(bean.value()).isEmpty()){
+						beanName=new Strings(clazz.getSimpleName()).toLowerCaseFirst();
 					}
 					beanMap.put(beanName,clazz.newInstance());
 				}
@@ -141,7 +136,7 @@ public class BeanHelper {
 								Assert.notNull(value, "bean["+beanName+"-"+bean.getClass()+"] has not field "+fieldType+"["+et.getValue()+"]");
 								field.set(bean,value.equals("")?null:value);
 							}else if(fieldType.equals("m")||fieldType.equals("mv")||fieldType.equals("mb")){
-								String methodName="set"+toUpperForStart(fieldName);
+								String methodName="set"+new Strings(fieldName).toUpperCaseFirst();
 								Method method=ClassUtil.getMethod(bean.getClass(),methodName);
 								method.setAccessible(true);
 								Assert.notNull(method, "bean["+beanName+"-"+bean.getClass()+"] has not method["+methodName+"] for field["+fieldName+"]!");
@@ -170,20 +165,15 @@ public class BeanHelper {
 				for(Class<?> clazz:classes){
 					Bean bean=clazz.getAnnotation(Bean.class);
 					String beanName=bean.value();
-					if(beanName==null||beanName.trim().length()==0){
-						beanName=toLowerForStart(clazz.getSimpleName());
-					}
+					if(new Strings(beanName).isEmpty())	beanName=new Strings(clazz.getSimpleName()).toLowerCaseFirst();
 					//字段注入方式
 					Field[] fields=ClassUtil.getFields(clazz);
 					for(Field filed:fields){
 						Inject inject=filed.getAnnotation(Inject.class);
-						if(inject==null){
-							continue;
-						}
+						if(inject==null)	continue;
 						String injectName=inject.value();
-						if(injectName==null||injectName.trim().length()==0){
-							injectName=toLowerForStart(filed.getType().getSimpleName());
-						}
+						Strings injectStrings=new Strings(injectName);
+						if(injectStrings.isEmpty())	injectName=injectStrings.toLowerCaseFirst();
 						filed.setAccessible(true);
 						Object v= beanMap.get(injectName)==null?beanMap.get(filed.getName()):beanMap.get(injectName);
 						Assert.notNull(v, "beanName:["+beanName+"-"+bean.getClass()+"],field inject ["+filed.getName()+"] v is null");
@@ -197,8 +187,9 @@ public class BeanHelper {
 							continue;
 						}
 						String injectName=inject.value();
-						if(injectName==null||injectName.trim().length()==0){
-							injectName=toLowerForStart(method.getParameterTypes()[0].getSimpleName());
+						Strings injectStrings=new Strings(injectName);
+						if(injectStrings.isEmpty()){
+							injectName=new Strings(method.getParameterTypes()[0].getSimpleName()).toLowerCaseFirst();
 						}
 						method.setAccessible(true);
 						Object v=beanMap.get(injectName)==null?beanMap.get(method.getParameterTypes()[0]):beanMap.get(injectName);
@@ -212,7 +203,7 @@ public class BeanHelper {
 					Bean bean=clazz.getAnnotation(Bean.class);
 					String beanName=bean.value();
 					if(beanName==null||beanName.trim().length()==0){
-						beanName=toLowerForStart(clazz.getSimpleName());
+						beanName=new Strings(clazz.getSimpleName()).toLowerCaseFirst();
 					}
 					//
 					Field[] fields=ClassUtil.getFields(clazz);
@@ -284,7 +275,7 @@ public class BeanHelper {
 					Bean bean=clazz.getAnnotation(Bean.class);
 					 String beanName=bean.value();
 					if(beanName==null||beanName.trim().length()==0){
-						beanName=toLowerForStart(clazz.getSimpleName());
+						beanName=new Strings(clazz.getSimpleName()).toLowerCaseFirst();
 					}
 					final String tempBean=beanName;
 					for(final Method method:ClassUtil.getMethods(clazz)){
@@ -310,13 +301,17 @@ public class BeanHelper {
 		} 
 		LoggerHelper.info(BeanHelper.class,"bean initd--->"+beanMap.keySet());
 	}
+	public static Object evelV(String elp) throws ElException{
+		return smlElContext.evel(elp);
+	}
+	
 	public static void initAnnotationInvoke(List<Class<?>> classes) throws Exception{
 		//@Init方法
 		for(Class<?> clazz:classes){
 			Bean bean=clazz.getAnnotation(Bean.class);
 			String beanName=bean.value();
 			if(beanName==null||beanName.trim().length()==0){
-				beanName=toLowerForStart(clazz.getSimpleName());
+				beanName=new Strings(clazz.getSimpleName()).toLowerCaseFirst();
 			}
 			Method[] ms=ClassUtil.getMethods(clazz);
 			List<String> initdMethod=MapUtils.newArrayList();
@@ -350,129 +345,44 @@ public class BeanHelper {
 		return null;
 	}
 	public static String getValue(String key){
-		return FrameworkConstant.getProperty(key);
+		return propertiesHelper.getValue(key);
 	}
-	public static Object getValue(String type,String key) throws IllegalArgumentException, IllegalAccessException{
+	public static Object getValue(String type,String key) throws IllegalArgumentException, IllegalAccessException, ElException{
 		if(type==null){
-			//return key;
+			
 		}else if(type.equals("v")){
 			return getValue(key);
 		}else if(type.equals("b")){
 			if(!beanErrInfo.containsKey(key))
-				return beanMap.get(key);
+				return smlElContext.getBean(key);
 			else
 				return "";
 		}
 		if(key.startsWith("${")&&key.endsWith("}")){
-			return getValue(key.substring(2,key.length()-1));
+			return evelV(key);
 		}else if(key.startsWith("#{")&&key.endsWith("}")){
 			String keyElp=key.substring(2,key.length()-1);
 			 if(!beanErrInfo.containsKey(keyElp))
-				return beanMap.get(keyElp);
+				return evelV(keyElp);
 			else 
 			    return "";
 		}
 		return key;
 	}
 	public static Map<String,String> getBeanKeyValue(String key){
-		if(!key.startsWith("bean-")){
-			key="bean-"+key;
+		if(!key.startsWith(KEY_BEAN_PREFIX)){
+			key=KEY_BEAN_PREFIX+key;
 		}
 		String value=getValue(key);
 		Assert.notNull(value,key+" not found!");
 		return MapUtils.transMapFromStr(value);
 	}
-	public static Map<String,String> getPropertyKeyStart(String startKey){
-		Map<String,String> result=MapUtils.newLinkedHashMap();
-		//--
-		Enumeration<Object> keys=FrameworkConstant.otherProperties.keys();
-		while(keys.hasMoreElements()){
-			String key=keys.nextElement().toString();
-			if(key.startsWith(startKey)){
-				result.put(key,getValue(key));
-			}
-		}
-		//--
-		return result;
-	}
 	public static Map<String,Object> getBeanMap(){
 		return beanMap;
-	}
-	private static String toLowerForStart(String name){
-		return name.substring(0,1).toLowerCase()+name.substring(1);
-	}
-	private static String toUpperForStart(String name){
-		return name.substring(0,1).toUpperCase()+name.substring(1);
 	}
 	private static String[] getPorM(String key){
 		String[] pms= key.split("-");
 		return new String[]{pms[0],pms[1],pms.length==3?pms[2]:null};
-	}
-	private static class B<T>{
-		private T t;
-		private Class<T> c;
-		public B(){}
-		public B(T t, Class<T> c) {
-			super();
-			this.t = t;
-			this.c = c;
-		}
-		
-	}
-	public static Object evelV(String elp) throws IllegalArgumentException, IllegalAccessException{
-		return evel(elp).t;
-	}
-	private static B evel(String elp) throws IllegalArgumentException, IllegalAccessException{
-		Object value=null;
-		if(elp.startsWith("${")&&elp.endsWith("}")){
-			value= getValue(null,elp);
-		}else if(elp.startsWith("#{")&&elp.endsWith("}")){
-			String keyElp=elp.substring(2,elp.length()-1);
-			if(elp.contains(".")){
-				value=loopElp(keyElp);
-			}else if(keyElp.contains("[")&&keyElp.endsWith("]")){
-				String elps[]=keyElp.split("\\[");
-				String bn=elps[0];int index=Integer.parseInt(elps[1].substring(0,elps[1].length()-1));
-				Assert.isTrue(beanMap.containsKey(bn),"bean "+bn+" is not exists!");
-				Object b=beanMap.get(bn);
-				if(b.getClass().isArray()){
-					value=Array.get(b, index);
-				}else if(b instanceof List){
-					value= ((List)b).get(index);
-				}else{
-					Assert.isTrue(false, "elp["+elp+"] is not a array or list!");
-				}
-			}else{
-				Assert.isTrue(beanMap.containsKey(keyElp),"bean "+keyElp+" is not exists!");
-				value=beanMap.get(keyElp);
-			}
-		}else{
-			String keyP=elp;
-			B b=new B();
-			if(keyP.startsWith("''")&&keyP.endsWith("''")){
-				b.t=keyP.substring(2,keyP.length()-2).charAt(0);b.c=Character.class;
-			}else if(keyP.startsWith("'")&&keyP.endsWith("'")){
-				b.t=keyP.substring(1,keyP.length()-1).charAt(0);b.c=char.class;
-			} else if(keyP.startsWith("\"")&&keyP.endsWith("\"")){
-				b.t=keyP.substring(1, keyP.length()-1);b.c=String.class;
-			}else if(keyP.endsWith("l")||keyP.endsWith("L")){
-				b.t=Long.parseLong(keyP.substring(0, keyP.length()-1));b.c=keyP.endsWith("L")?Long.class:long.class;
-			}else if(keyP.endsWith("d")||keyP.endsWith("D")){
-				b.t=Double.parseDouble(keyP.substring(0, keyP.length()-1));b.c=keyP.endsWith("D")?Double.class:double.class;
-			}else if(keyP.endsWith("f")||keyP.endsWith("F")){
-				b.t=Float.parseFloat(keyP.substring(0, keyP.length()-1));b.c=keyP.endsWith("F")?Float.class:float.class;
-			}else if(keyP.endsWith("s")||keyP.endsWith("S")){
-				b.t=Short.parseShort(keyP.substring(0, keyP.length()-1));b.c=keyP.endsWith("S")?Short.class:short.class;
-			}else if(keyP.endsWith("i")||keyP.endsWith("I")){
-				b.t=Integer.parseInt(keyP.substring(0, keyP.length()-1));b.c=keyP.endsWith("I")?Integer.class:int.class;
-			}else if(keyP.equalsIgnoreCase("true")||keyP.equalsIgnoreCase("false")){			
-				b.t=Boolean.valueOf(keyP);b.c=(keyP.equals("TRUE")||keyP.equals("FLASE"))?Boolean.class:boolean.class;
-			}else{
-				b.t=keyP;b.c=Object.class;
-			}
-			return b;
-		}
-		return new B(value,value==null?null:value.getClass());
 	}
 	private static void methodInvoke(final Object bean,final Method method,boolean igErr,boolean isDelay,final long ms) throws Exception{
 		if(isDelay){
@@ -498,51 +408,6 @@ public class BeanHelper {
 				method.invoke(bean,new Object[]{});
 			}
 		}
-	}
-	public static Object loopElp(String elp) throws IllegalArgumentException, IllegalAccessException{
-		String elps[]=elp.split("\\.");
-		Object bean=null;
-		if(elps[0].contains("[")&&elps[0].endsWith("]")){
-			bean=evelV("#{"+elps[0]+"}");
-		}else
-			bean=getBean(elps[0]);
-		if(elps.length==1){
-			return bean;
-		}
-		return loopElp(bean,elps[1],elps,1);
-	}
-	private static Object loopElp(Object bean,String bnelp,String[] ss,int pos) throws IllegalArgumentException, IllegalAccessException{
-		Object value=null;
-		if(bnelp.contains("(")&&bnelp.endsWith(")")){
-			String[] melp=bnelp.split("\\(");
-			String mn=melp[0];
-			String clpP=melp[1].substring(0,melp[1].length()-1);
-			String[] clpBeans=new String[0];
-			if(!clpP.equals(""))
-			 clpBeans=clpP.split(",");
-			Object[] consts=new Object[clpBeans.length];
-			Class<?>[] constCls=new Class<?>[clpBeans.length];
-			for(int i=0;i<consts.length;i++){
-				String keyP=clpBeans[i];
-				B b=evel(keyP);
-				consts[i]=b.t;
-				constCls[i]=b.c;
-			}
-			try {
-				value=ClassUtil.invokeMethod(bean, mn, constCls, consts);
-			}  catch (Exception e) {
-				Assert.isTrue(false,"elp-["+bnelp+"] error["+e+"]!");
-			}
-		}else{
-			value= ClassUtil.getFieldValue(bean,bnelp);
-		}
-		if(value==null){
-			return null;
-		}
-		if(ss.length==pos+1){
-			return value;
-		}
-		return loopElp(value,ss[pos+1],ss,pos+1);
 	}
 	public static void main(String[] args) {
 		BeanHelper.start();

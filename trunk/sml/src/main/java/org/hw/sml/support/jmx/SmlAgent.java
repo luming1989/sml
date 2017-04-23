@@ -3,7 +3,6 @@ package org.hw.sml.support.jmx;
 import java.util.Date;
 
 import org.hw.sml.FrameworkConstant;
-import org.hw.sml.support.LoggerHelper;
 import org.hw.sml.support.ManagedThread;
 import org.hw.sml.support.SmlAppContextUtils;
 import org.hw.sml.support.security.CyptoUtils;
@@ -24,7 +23,7 @@ public class SmlAgent implements SmlAgentMBean {
 					while(DateTools.parse(key).before(new Date())){
 						SmlAppContextUtils.getSqlMarkupAbstractTemplate().destroy();
 					}
-					LoggerHelper.debug(SmlAgent.class,"sml is support before "+key +"...");
+				//	LoggerHelper.debug(SmlAgent.class,"sml is support before "+key +"...");
 				} catch (Exception e) {
 					SmlAppContextUtils.getSqlMarkupAbstractTemplate().destroy();
 				}finally{
