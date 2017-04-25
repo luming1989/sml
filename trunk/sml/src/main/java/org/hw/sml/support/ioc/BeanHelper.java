@@ -173,7 +173,7 @@ public class BeanHelper {
 						if(inject==null)	continue;
 						String injectName=inject.value();
 						Strings injectStrings=new Strings(injectName);
-						if(injectStrings.isEmpty())	injectName=injectStrings.toLowerCaseFirst();
+						if(injectStrings.isEmpty())	injectName=new Strings(filed.getType().getSimpleName()).toLowerCaseFirst();
 						filed.setAccessible(true);
 						Object v= beanMap.get(injectName)==null?beanMap.get(filed.getName()):beanMap.get(injectName);
 						Assert.notNull(v, "beanName:["+beanName+"-"+bean.getClass()+"],field inject ["+filed.getName()+"] v is null");
@@ -355,6 +355,7 @@ public class BeanHelper {
 		}else if(type.equals("b")){
 			if(!beanErrInfo.containsKey(key))
 				return smlElContext.getBean(key);
+
 			else
 				return "";
 		}
@@ -363,8 +364,8 @@ public class BeanHelper {
 		}else if(key.startsWith("#{")&&key.endsWith("}")){
 			String keyElp=key.substring(2,key.length()-1);
 			 if(!beanErrInfo.containsKey(keyElp))
-				return evelV(keyElp);
-			else 
+				return smlElContext.getBean(keyElp);
+			 else
 			    return "";
 		}
 		return key;
