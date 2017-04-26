@@ -48,7 +48,4 @@ public class SmlAgent implements SmlAgentMBean {
 		}
 		return SmlAppContextUtils.getSmlContextUtils().clear(key);
 	}
-	public static void main(String[] args) {
-		System.out.println(CyptoUtils.decode(FrameworkConstant.AUTHOR,FrameworkConstant.AUTHKEY));
-	}
 }

@@ -33,6 +33,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * 
  */
 public class MapUtils {
+	private MapUtils(){}
+	private static final MapUtils mu=new MapUtils();
+	public static MapUtils newInstance(){
+		return mu;
+	}
 	private static final DecimalFormat dcmFmt = new DecimalFormat("0.00");
 	static{
 		System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");

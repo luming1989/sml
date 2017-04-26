@@ -7,10 +7,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.List;
 
-/**
- * 类操作工具类
- *
- */
 public class ClassUtil {
 
     public static ClassLoader getClassLoader() {
@@ -24,10 +20,6 @@ public class ClassUtil {
         }
         return classpath;
     }
-
-    /**
-     * 加载类（将自动初始化）
-     */
     public static Class<?> loadClass(String className) {
         return loadClass(className, true);
     }
@@ -108,7 +100,7 @@ public class ClassUtil {
 			return (isInt(elSrc)&&isInt(clsrc))||
 					(isDouble(elSrc)&&isDouble(clsrc))||(isShort(elSrc)&&isShort(clsrc))||(isLong(elSrc)&&isLong(clsrc))||(isChar(elSrc)&&isChar(clsrc))||(isBoolean(elSrc)&&isBoolean(clsrc))||(isFloat(elSrc)&&isFloat(clsrc))||(isByte(elSrc)&&isByte(clsrc));
 		}
-    	return elSrc.isAssignableFrom(clsrc);
+    	return elSrc.equals(Object.class)||elSrc.isAssignableFrom(clsrc);
     }
     public static boolean isAssignableFrom(Class<?>[] elSrc,Class<?>[] clsrc){
     	if(clsrc==null&&elSrc==null){
@@ -138,7 +130,7 @@ public class ClassUtil {
     	}else if(isFloat(requiredType)){
     		requiredType=Float.class;
     	}
-    	if(requiredType.equals(boolean.class)||requiredType.equals(Boolean.class)){
+    	if(isBoolean(requiredType)){
     		return Boolean.valueOf(String.valueOf(value));
     	}
 		if (String.class.equals(requiredType)) {

@@ -8,6 +8,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hw.sml.context.SmlContextUtils;
+import org.hw.sml.core.resolver.JsEngine;
+import org.hw.sml.support.el.ElException;
+import org.hw.sml.support.ioc.BeanHelper;
 
 public class Test {
 	 static class DefaultThreadFactory implements ThreadFactory {
@@ -36,29 +39,19 @@ public class Test {
 	            return t;
 	        }
 	    }
-	public static void main(String[] args) throws IOException {
-		ExecutorService es=Executors.newFixedThreadPool(10);
-		for(int i=0;i<1000;i++){
-			es.execute(new Runnable() {
-				public void run() {
-					try {
-						String result=SmlContextUtils.queryFromUrl("http://localhost:10010/sml/cache", "");
-						System.out.println(Thread.currentThread().getName()+"---->"+result.length());
-						Thread.sleep(1000);
-					} catch (IOException e) {
-						e.printStackTrace();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			});
+	public static void main(String[] args) throws IOException, ElException {
+		BeanHelper.start();
+		JsEngine.evel("");
+		long start=System.currentTimeMillis();
+		for(int i=0;i<10000;i++){
+			BeanHelper.evelV("{'k':'c','b':'d'}");
 		}
-		es.submit(new Callable<Object>() {
-			public Object call() throws Exception {
-				return 1;
-			}
-		});
+		System.out.println(System.currentTimeMillis()-start);
+		long s=System.currentTimeMillis();
+		for(int i=0;i<10000;i++){
+			JsEngine.evel("var v={};v.k='c';v.b='d'; v");
+		}
+		System.out.println(System.currentTimeMillis()-s);
 		
 	}
 }

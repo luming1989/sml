@@ -4,16 +4,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.hw.sml.support.el.ElContext;
 import org.hw.sml.support.el.ElException;
 import org.hw.sml.support.el.SmlElContext;
 import org.hw.sml.support.ioc.BeanHelper;
+import org.hw.sml.support.ioc.annotation.Val;
 
 import com.alibaba.fastjson.JSON;
 
 public class A {
 	private String str;
-	private  Integer i;
+	private  Object i;
 	private Character c;
 	private Double d;
 	private Long l;
@@ -23,13 +23,20 @@ public class A {
 	public A(int i){
 		this.i=i;
 	}
+	@Val("{a:#{person.age},b:${properties}}")
 	public String get(String a,String b,String c){
 		return a+b+c;
 	}
-	public String get(String[] strs){
+	public String get(String ... strs){
 		return Arrays.asList(strs).toString();
 	}
-	public A(String str, int i, char c, double d, long l, short s, Float f, Boolean flag) {
+	public void test(int i){
+		test(i);
+	}
+	public void test(long i){
+		
+	}
+	public A(String str, Object i, char c, double d, long l, short s, Float f, Boolean flag) {
 		super();
 		this.str = str;
 		this.i = i;
@@ -79,11 +86,14 @@ public class A {
 		BeanHelper.getBean(SmlElContext.class).addBean("testMap",list);
 		System.out.println(BeanHelper.evelV("#{testMap}").getClass());
 		System.out.println(BeanHelper.evelV("#{smlMapHelper.sort(#{testMap},'a','desc')}"));
-		System.out.println(list);
+		System.out.println(BeanHelper.evelV("#{('k').equals('k')}"));
+		System.out.println(BeanHelper.evelV("{1:2,a:b,c:d,e:f}"));
 		System.out.println(System.currentTimeMillis()-start);
 		//ArrayList c;
-		System.out.println(char.class.isAssignableFrom(Character.class));
+		//"".matches(regex)
 		//"".equals(anObject)
+		Boolean flag=new Object().getClass().isAssignableFrom(Integer.class);
+		System.out.println(flag);
 	}
 
 

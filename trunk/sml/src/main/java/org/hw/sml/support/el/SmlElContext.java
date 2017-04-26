@@ -29,7 +29,7 @@ public  class SmlElContext extends ElContext{
 					value=loopElp(keyElp);
 				else if(keyElp.startsWith("(")&&keyElp.endsWith(")")){
 					value=evel(keyElp);
-			}else if(keyElp.contains("[")&&keyElp.endsWith("]")){
+				}else if(keyElp.contains("[")&&keyElp.endsWith("]")){
 					String elps[]=keyElp.split("\\[");
 					String bn=elps[0];int index=Integer.parseInt(elps[1].substring(0,elps[1].length()-1));
 					Assert.isTrue(beanMap.containsKey(bn),"bean "+bn+" is not exists!");
@@ -41,10 +41,10 @@ public  class SmlElContext extends ElContext{
 					}else{
 						Assert.isTrue(false, "elp["+elp+"] is not a array or list!");
 					}
-			}else{
-				Assert.isTrue(beanMap.containsKey(keyElp),"bean "+keyElp+" is not exists!");
-				value=beanMap.get(keyElp);
-			}
+				}else{
+					Assert.isTrue(beanMap.containsKey(keyElp),"bean "+keyElp+" is not exists!");
+					value=beanMap.get(keyElp);
+				}
 			}else{
 				String keyP=elp;
 				BeanType b=new BeanType();
@@ -67,9 +67,12 @@ public  class SmlElContext extends ElContext{
 				}else if(keyP.equalsIgnoreCase("true")||keyP.equalsIgnoreCase("false")){			
 					b.setV(Boolean.valueOf(keyP));b.setC((keyP.equals("TRUE")||keyP.equals("FLASE"))?Boolean.class:boolean.class);
 				}else if(keyP.startsWith("{")&&keyP.endsWith("}")){
-					Map<Object,Object> map=MapUtils.newHashMap();
+					Map<Object,Object> map=MapUtils.newLinkedHashMap();
 					String[] kvps=new Strings(keyP.substring(1,keyP.length()-1)).splitToken(',','(',')');
 					for(String kvp:kvps){
+						if(kvp.length()==0){
+							continue;
+						}
 						String[] kkvp=new Strings(kvp).splitToken(':', '(', ')');
 						map.put(evel(kkvp[0]),evel(kkvp[1]));
 					}

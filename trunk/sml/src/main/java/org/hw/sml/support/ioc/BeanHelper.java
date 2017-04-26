@@ -3,7 +3,6 @@ package org.hw.sml.support.ioc;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
@@ -22,12 +21,12 @@ import org.hw.sml.support.ioc.annotation.Val;
 import org.hw.sml.tools.Assert;
 import org.hw.sml.tools.ClassUtil;
 import org.hw.sml.tools.MapUtils;
-import org.hw.sml.tools.RegexUtils;
 import org.hw.sml.tools.Strings;
 
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class BeanHelper {
+	private BeanHelper(){}
 	public  static final  String IOC_BEAN_SCAN="ioc-bean-scan";
 	private static  Map<String,Object> beanMap=MapUtils.newLinkedHashMap();
 	private static  Map<String,Object> propertyInitBeanMap=MapUtils.newLinkedHashMap();
@@ -355,7 +354,6 @@ public class BeanHelper {
 		}else if(type.equals("b")){
 			if(!beanErrInfo.containsKey(key))
 				return smlElContext.getBean(key);
-
 			else
 				return "";
 		}
@@ -364,11 +362,11 @@ public class BeanHelper {
 		}else if(key.startsWith("#{")&&key.endsWith("}")){
 			String keyElp=key.substring(2,key.length()-1);
 			 if(!beanErrInfo.containsKey(keyElp))
-				return smlElContext.getBean(keyElp);
+				return smlElContext.evel(key);
 			 else
 			    return "";
 		}
-		return key;
+		return smlElContext.evel(key);
 	}
 	public static Map<String,String> getBeanKeyValue(String key){
 		if(!key.startsWith(KEY_BEAN_PREFIX)){

@@ -16,6 +16,10 @@ import java.util.List;
  *
  */
 public class DateTools {
+	private static final DateTools dt=new DateTools();
+	public static DateTools newInstance(){
+		return dt;
+	}
 	public static final long DAY_TIME_MILLS = 24 * 60 * 60 * 1000;
 	public static final long HOUR_TIME_MILLS = 60 * 60 * 1000;
 	public static final SimpleDateFormat sdf = new SimpleDateFormat();

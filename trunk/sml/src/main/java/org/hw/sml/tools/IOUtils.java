@@ -1,6 +1,9 @@
 package org.hw.sml.tools;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -16,5 +19,11 @@ public class IOUtils {
 			baos.write(bs, 0, temp);
 		}
 		return baos.toString(charset);
+	}
+	public static String toString(File file,String charset) throws FileNotFoundException, IOException{
+		return  toString(new FileInputStream(file),charset);
+	}
+	public static String toString(String filePath,String charset) throws FileNotFoundException, IOException{
+		return toString(new File(filePath), charset);
 	}
 }

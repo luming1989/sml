@@ -25,8 +25,9 @@ public abstract class ElContext{
 	@SuppressWarnings("unchecked")
 	public <T extends ElContext> T init(){
 		addBean("smlElHelper",this);
-		addBean("smlDateHelper",new DateTools());
-		addBean("smlMapHelper",new MapUtils());
+		addBean("smlDateHelper",DateTools.newInstance());
+		addBean("smlMapHelper",MapUtils.newInstance());
+		addBean("lo",LogicOperation.newInstance());
 		return (T)this;
 	}
 	@SuppressWarnings("unchecked")
