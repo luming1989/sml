@@ -52,7 +52,7 @@
    提供了强大的表达示语言给于java动态语言的特性
 ```java
     public void test(){
-    	ElContext el=new ElContext().withBeanMap(beanMap).withPropertiesMap(properties).renameValue();
+    	ElContext el=new SmlElContext().withBeanMap(beanMap).withPropertiesMap(properties).init();
 	//beanMap   Map<String,Object> obj is bean,properties Properties对象，这两参数就指定了表达示依赖的上下文环境
         el.evel('a');//'a'----->String.class "a"
 	el.evel(12.0d);//12.0d----->double.class  12.0d|12i ----->int.class 12|12l ---->long.class 12l
@@ -143,6 +143,25 @@ result
 	<included id="table_choose"/>
 ```
    上面两类内容进行替换
-   
+ ## https Http Client功能
+      底层API,200行实现对http常用请求，包含连接保持，乱码处理，多文件多参数上传，下载
+```java
+	//get请求保持连接，返回utf-8编码
+	String result=Https.newGetHttps("http://www.baidu.com").keepAlive(true).charset("utf-8").execute();
+	//post form表单提交 可url带参与formparam同时存在
+	Https https=Https.newPostFormHttps("http://test/w?a=2").execute();
+	https.getParamer().add("formParam1","1").add("formParam2","2");
+	https.execute();
+	//post  body请求 body(byte[]|string)
+	result=Https.newPostHttps("http://test?a=1").body("{a:b,c:d}").execute()
+	//下载，将请求返回二进制流写入bos 本地流
+	Https.newGetHttps("http://www.baidu.com").bos(new FileOutputStream("/tempfile")).execute();
+	//上传，可提交多个文件和多个formparam  body(UpFile) upFile对象可填多个
+	Https https=Https.newPostHttps("http://test/helloworld/import").upFile().body(Https.newUpFile("t.xlsx",new 	FileInputStream("D:/temp/t.xlsx")));
+	https.getParamer().add("a","参数1");
+	https.getParamer().add("b","参数2");
+	https.execute();
+```
+   
  ## ext-httpServer功能  50kb
       提供内置httpServer，为微服务体系提供基础。
