@@ -179,7 +179,7 @@ public class ManagedQuene<T extends Task> {
 
 	public String getThreadNamePre() {
 		if(threadNamePre==null){
-			threadNamePre=getManageName()+"-consumer";
+			threadNamePre=getManageName()+"-woker";
 		}
 		return threadNamePre;
 	}

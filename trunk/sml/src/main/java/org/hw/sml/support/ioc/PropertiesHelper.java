@@ -41,6 +41,7 @@ public class PropertiesHelper {
 					if(vt!=null)
 						value=value.replace(m,vt);
 				}
+				propertiesMap.put(entry.getKey(),value);
 			}
 		}
 		return this;

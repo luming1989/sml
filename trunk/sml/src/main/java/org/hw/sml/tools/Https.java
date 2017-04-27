@@ -1,10 +1,12 @@
 package org.hw.sml.tools;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -18,10 +20,12 @@ public class Https {
 	
 	public static final String METHOD_GET="GET";
 	public static final String METHOD_POST="POST";
+	byte[] bytes=new byte[512];
 	private boolean keepAlive=false;
 	private Https(String url){
 		this.url=url;
 	}
+	private OutputStream bos=new ByteArrayOutputStream();
 	public static Https newGetHttps(String url){
 		return new Https(url);
 	}
@@ -42,12 +46,19 @@ public class Https {
 		https.getHeader().put("Content-Type","application/x-www-form-urlencoded");
 		return https;
 	}
+	
+	public Https bos(OutputStream os){
+		this.bos=os;
+		return this;
+	}
 	private String method=METHOD_GET;
 	private String charset="utf-8";
 	private String url;
 	private Header header=new Header("*/*","*/*");
 	private Object body;
 	private int connectTimeout;
+	private boolean isUpload=false;
+	private String boundary;
 	private Paramer paramer=new Paramer();
 	public Https charset(String charset){
 		this.charset=charset;
@@ -76,6 +87,15 @@ public class Https {
 	}
 	public Header getHeader() {
 		return header;
+	}
+	public Https upFile(String boundary){
+		isUpload=true;
+		this.boundary=boundary;
+	   this.header.put("Content-Type","multipart/form-data;boundary="+boundary);
+	   return this;
+	}
+	public Https upFile(){
+		return upFile(String.valueOf(System.currentTimeMillis()));
 	}
 	public Https param(Paramer paramer){
 		this.paramer=paramer;
@@ -127,6 +147,7 @@ public class Https {
 			String keyToLower=name.toLowerCase().trim();
 			String valueToLower=value.toLowerCase().trim();
 			try{
+				if(isUpload) return this;
 				if(valueToLower.contains("charset")){
 					if(keyToLower.equals("content-type"))
 						this.requestCharset=valueToLower.split("=")[1].replace(";","");
@@ -172,15 +193,38 @@ public class Https {
 		conn.setRequestMethod(this.method);
 		InputStream is=null;
 		OutputStream out=null;
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();  
+		DataOutputStream ds=null;
 		try{
 			if(this.method.equals(METHOD_POST)){
 				conn.setDoInput(true);
+				conn.setUseCaches(false);
 				out=conn.getOutputStream();
 				if(body!=null){
 					if(body instanceof String)
 						out.write(body.toString().getBytes(header.requestCharset));
-					else
+					else if(isUpload&&body.getClass().isArray()&&Array.get(body,0) instanceof UpFile){
+						ds=new DataOutputStream(out);
+						int i=0;
+						for(Map.Entry<String,String> entry:this.paramer.params.entrySet()){
+							ds.writeBytes("--"+boundary+"\r\n");
+							ds.writeBytes("Content-Disposition: form-data; name=\""+this.paramer.params.get(entry.getKey())+"\"\r\n");
+							ds.writeBytes("\r\n");
+							ds.write(entry.getValue().getBytes(this.header.requestCharset));
+						}
+						for(UpFile uf:((UpFile[])body)){
+							ds.writeBytes("--"+boundary+"\r\n");
+							ds.writeBytes("Content-Disposition: form-data; name=\"file"+(i++)+"\";filename=\""+uf.name+"\"\r\n");
+							ds.writeBytes("Content-Type: application/octet-stream;charset="+header.requestCharset+"\r\n");
+							ds.writeBytes("\r\n");
+							int dst=-1;
+							while((dst=uf.is.read(bytes))!=-1){
+								ds.write(bytes,0,dst);
+							}
+							ds.flush();
+						}
+						ds.writeBytes("--"+boundary+"--\r\n");
+						ds.writeBytes("\r\n");
+					}else
 						out.write((byte[])body);
 				}else if(qps!=null){
 					out.write(qps.getBytes());
@@ -189,7 +233,6 @@ public class Https {
 			}
 			is=conn.getInputStream();
 			int temp=-1;
-			byte[] bytes=new byte[512];
 			while((temp=is.read(bytes))!=-1){
 				bos.write(bytes,0,temp);
 			}
@@ -204,8 +247,10 @@ public class Https {
 				out.close();
 			if(is!=null)
 				is.close();
+			if(ds!=null)
+				ds.close();
 		}
-		return bos.toByteArray();
+		return (bos instanceof ByteArrayOutputStream)?((ByteArrayOutputStream)bos).toByteArray():new byte[0];
 	}
 	public Https body(String requestBody){
 		this.body=requestBody;
@@ -213,6 +258,10 @@ public class Https {
 	}
 	public Https body(byte[] requestBody){
 		this.body=requestBody;
+		return this;
+	}
+	public Https body(UpFile ... uf){
+		this.body=uf;
 		return this;
 	}
 	public String execute() throws IOException{
@@ -224,5 +273,16 @@ public class Https {
 	}
 	public Paramer getParamer() {
 		return paramer;
+	}
+	public static UpFile newUpFile(String name,InputStream is){
+		return new UpFile(name, is);
+	}
+	public static class UpFile{
+		public String name;
+		public InputStream is;
+		public UpFile(String name,InputStream is){
+			this.name=name;
+			this.is=is;
+		}
 	}
 }

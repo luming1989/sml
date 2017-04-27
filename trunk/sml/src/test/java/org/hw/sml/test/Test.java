@@ -49,7 +49,7 @@ public class Test {
 		System.out.println(System.currentTimeMillis()-start);
 		long s=System.currentTimeMillis();
 		for(int i=0;i<10000;i++){
-			JsEngine.evel("var v={};v.k='c';v.b='d'; v");
+			JsEngine.evel("var v={'k':'c','b':'d'}; ");
 		}
 		System.out.println(System.currentTimeMillis()-s);
 		
