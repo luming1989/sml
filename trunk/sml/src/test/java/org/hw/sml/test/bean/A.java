@@ -83,7 +83,7 @@ public class A {
 		System.out.println(map);
 		System.out.println(BeanHelper.evelV("{a:({b:1,c:   ({d:1})   })}"));
 		List<Map> list=(List<Map>) BeanHelper.evelV("([({a:1,b:2,c:3}),({a:2,b:3,c:2}),({a:3,b:3,c:1})])");
-		BeanHelper.getBean(SmlElContext.class).addBean("testMap",list);
+		BeanHelper.getBean(SmlElContext.class).withBean("testMap",list);
 		System.out.println(BeanHelper.evelV("#{testMap}").getClass());
 		System.out.println(BeanHelper.evelV("#{smlMapHelper.sort(#{testMap},'a','desc')}"));
 		System.out.println(BeanHelper.evelV("#{('k').equals('k')}"));

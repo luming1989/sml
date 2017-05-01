@@ -43,13 +43,17 @@ public class Test {
 		BeanHelper.start();
 		JsEngine.evel("");
 		long start=System.currentTimeMillis();
-		for(int i=0;i<10000;i++){
-			BeanHelper.evelV("{'k':'c','b':'d'}");
+		for(int i=0;i<100;i++){
+			Object result=BeanHelper.evelV("#{lo.plus(1.0,1)}");
+			if(i==1)
+				System.out.println(result);
 		}
 		System.out.println(System.currentTimeMillis()-start);
 		long s=System.currentTimeMillis();
-		for(int i=0;i<10000;i++){
-			JsEngine.evel("var v={'k':'c','b':'d'}; ");
+		for(int i=0;i<100;i++){
+			Object result=JsEngine.evel("1+1");
+			if(i==1)
+				System.out.println(result);
 		}
 		System.out.println(System.currentTimeMillis()-s);
 		

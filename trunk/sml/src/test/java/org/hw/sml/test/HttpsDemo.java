@@ -8,14 +8,13 @@ import org.hw.sml.tools.Https;
 
 public class HttpsDemo {
 	public static void main(String[] args) throws IOException {
-		//下载
+		//zzzz
 		//String result=Https.newGetHttps("http://10.221.235.17:8080/INAS/sml/invoke/mdmMngService/template/System").bos(new FileOutputStream("d:/temp/t.xlsx")).execute();
 		//上传
-		Https https=Https.newPostHttps("http://localhost:10086/esb/helloworld/import").upFile().body(Https.newUpFile("t.xlsx",new FileInputStream("D:/temp/t.xlsx")));
-		https.getParamer().add("a","黄文");
-		https.getParamer().add("b","黄武");
-		String result=https.execute();
-		//
-		System.out.println(result);
+		for(int i=0;i<1;i++){
+			String result=Https.newGetHttps("http://www.baidu.com").keepAlive(true).execute();
+			//
+			System.out.println(new Integer(result.length()).toString().concat(""));
+		}
 	}
 }

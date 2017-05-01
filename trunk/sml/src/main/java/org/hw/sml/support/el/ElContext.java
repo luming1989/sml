@@ -24,19 +24,19 @@ public abstract class ElContext{
 	}
 	@SuppressWarnings("unchecked")
 	public <T extends ElContext> T init(){
-		addBean("smlElHelper",this);
-		addBean("smlDateHelper",DateTools.newInstance());
-		addBean("smlMapHelper",MapUtils.newInstance());
-		addBean("lo",LogicOperation.newInstance());
+		withBean("smlElHelper",this);
+		withBean("smlDateHelper",DateTools.newInstance());
+		withBean("smlMapHelper",MapUtils.newInstance());
+		withBean("lo",LogicOperation.newInstance());
 		return (T)this;
 	}
 	@SuppressWarnings("unchecked")
-	public  <T extends ElContext>T  addProperty(String key,String value){
+	public  <T extends ElContext>T  withProperty(String key,String value){
 		properties.put(key, value);
 		return (T)this;
 	}
 	@SuppressWarnings("unchecked")
-	public <T extends ElContext>T addBean(String key,Object value){
+	public <T extends ElContext>T withBean(String key,Object value){
 		beanMap.put(key, value);
 		return (T)this;
 	}

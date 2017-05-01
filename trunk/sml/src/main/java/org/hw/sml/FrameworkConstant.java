@@ -109,14 +109,9 @@ public class FrameworkConstant {
 		}
 		LoggerHelper.warn(FrameworkConstant.class,key+" is  reset used it --->["+value+"]");
 	}
-	public static String getProperty(String key){
-		String result=null;
-		//result=properties.getProperty(key);
-		//if(result==null)
-			result=otherProperties.getProperty(key);
-		if(result==null)
-			result=System.getProperties().getProperty(key);
-		return result;
+	private static String getProperty(String key){
+		String result=otherProperties.getProperty(key);
+		return result==null?System.getProperty(key):result;
 	}
 	private static String getName(String profile,String name){
 		if(profile==null||profile.length()==0){

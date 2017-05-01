@@ -249,6 +249,9 @@ public class Https {
 				is.close();
 			if(ds!=null)
 				ds.close();
+			if(bos!=null){
+				bos.close();
+			}
 		}
 		return (bos instanceof ByteArrayOutputStream)?((ByteArrayOutputStream)bos).toByteArray():new byte[0];
 	}

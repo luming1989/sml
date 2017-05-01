@@ -27,7 +27,7 @@ public class LogicOperation {
 			return Long.parseLong(n1.toString())+Long.parseLong(n2.toString());
 		}
 	}
-	public static Number minus(Number n1,Number n2){
+	public static Number minus(Object n1,Object n2){
 		if(n1.toString().contains(".")||n2.toString().contains(".")){
 			return Double.parseDouble(n1.toString())-Double.parseDouble(n2.toString());
 		}else{
