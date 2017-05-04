@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import org.hw.sml.jdbc.ResultSetExtractor;
 import org.hw.sml.jdbc.RowMapper;
 import org.hw.sml.tools.Assert;
 import org.hw.sml.tools.ClassUtil;
+import org.hw.sml.tools.LinkedCaseInsensitiveMap;
 import org.hw.sml.tools.MapUtils;
 
 public class DefaultJdbcTemplate extends JdbcTemplate  {
@@ -243,10 +245,10 @@ public class DefaultJdbcTemplate extends JdbcTemplate  {
 			return queryForObject(sql, params, Long.class);
 		}
 		public Map<String,Object> queryForMap(String sql,Object... params){
-			return queryForObject(sql, params, new MapRowMapper());
+			return queryForObject(sql, params, new MapRowMapper(true));
 		}
 		public List<Map<String,Object>> queryForList(String sql,Object... params){
-			return query(sql, params,new MapRowMapper());
+			return query(sql, params,new MapRowMapper(false));
 		}
 		@SuppressWarnings("unchecked")
 		public <T> T queryForObject(String sql,Object[] params,Class<T> clazz){
@@ -339,11 +341,15 @@ public class DefaultJdbcTemplate extends JdbcTemplate  {
 			return result;
 		}
 		class MapRowMapper implements  RowMapper<Map<String,Object>> {
+			private boolean caseInsensitive=true;
+			private MapRowMapper(boolean caseInsensitive){
+				this.caseInsensitive=caseInsensitive;
+			}
 			public Map<String, Object> mapRow(ResultSet rs, int rowNum)
 					throws SQLException {
 				ResultSetMetaData rsmd = rs.getMetaData();
 				int columnCount = rsmd.getColumnCount();
-				Map<String, Object> mapOfColValues = MapUtils.newLinkedHashMap();
+				Map<String, Object> mapOfColValues = caseInsensitive?new LinkedCaseInsensitiveMap<Object>(columnCount):new LinkedHashMap<String, Object>(columnCount);
 				for (int i = 1; i <= columnCount; i++) {
 					String key = lookupColumnName(rsmd, i);
 					Object obj = getResultSetValue(rs, i);

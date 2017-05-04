@@ -1,10 +1,13 @@
 package org.hw.sml.support.queue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -56,7 +59,10 @@ public class ManagedQuene<T extends Task> {
 	
 	private boolean ignoreLog=true;
 	
-	private boolean timeoutRunning=true;
+	private boolean timeoutRunning=false;
+	
+	private boolean skipQueueCaseInExecute;
+	private  Map<String,Boolean> executingMap;
 	
 	
 	
@@ -65,6 +71,7 @@ public class ManagedQuene<T extends Task> {
 			queue=new ArrayBlockingQueue<T>(depth);
 			LoggerHelper.info(getClass(),"manageName ["+getManageName()+"] has init depth "+depth+" !");
 		}
+		executingMap=new HashMap<String, Boolean>();
 		for(int i=1;i<=consumerThreadSize;i++){
 			Execute execute=new Execute();
 			execute.setDaemon(true);
@@ -95,7 +102,11 @@ public class ManagedQuene<T extends Task> {
 	}
 	
 	public synchronized void addT(T task){
+		if(skipQueueCaseInExecute&&executingMap.containsKey(task.toString())){
+			return;
+		}
 		queue.add(task);
+		executingMap.put(task.toString(),true);
 		if(!ignoreLog)
 			LoggerHelper.info(getClass(),"add "+getManageName()+" total-"+getDepth()+",current-"+queue.size()+".");
 			
@@ -126,18 +137,22 @@ public class ManagedQuene<T extends Task> {
 				}
 			}  catch (TimeoutException e) {
 				LoggerHelper.info(getClass(),"task["+task.toString()+"] timeout!");
-				if(future!=null)
-				future.cancel(true);
+				if(future!=null&&!timeoutRunning)
+					future.cancel(true);
+				else
+					executingMap.put(task.toString(),false);
 			}catch (Exception e) {
 				e.printStackTrace();
 				LoggerHelper.error(getClass(),String.format(getErrorMsg(),e.getMessage()));
 			}finally{
+				executingMap.remove(task.toString());
 				if(exec!=null){
 					if(timeoutRunning)
 						exec.shutdown();
 					else
 						exec.shutdownNow();
 				}
+				
 			}
 		}
 		protected void cleanup() {
@@ -259,6 +274,24 @@ public class ManagedQuene<T extends Task> {
 	public void setTimeoutRunning(boolean timeoutRunning) {
 		this.timeoutRunning = timeoutRunning;
 	}
+
+	public boolean isSkipQueueCaseInExecute() {
+		return skipQueueCaseInExecute;
+	}
+
+	public void setSkipQueueCaseInExecute(boolean skipQueueCaseInExecute) {
+		this.skipQueueCaseInExecute = skipQueueCaseInExecute;
+	}
+
+	public Map<String, Boolean> getExecutingMap() {
+		return executingMap;
+	}
+
+	public void setExecutingMap(Map<String, Boolean> executingMap) {
+		this.executingMap = executingMap;
+	}
+	
+	
 	
 	
 }

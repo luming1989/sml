@@ -1,6 +1,8 @@
 package org.hw.sml.test.bean;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +10,7 @@ import org.hw.sml.support.el.ElException;
 import org.hw.sml.support.el.SmlElContext;
 import org.hw.sml.support.ioc.BeanHelper;
 import org.hw.sml.support.ioc.annotation.Val;
+import org.hw.sml.support.time.annotation.Scheduler;
 
 import com.alibaba.fastjson.JSON;
 
@@ -30,8 +33,14 @@ public class A {
 	public String get(String ... strs){
 		return Arrays.asList(strs).toString();
 	}
-	public void test(int i){
-		test(i);
+	@Scheduler("min1|00|00")
+	public void test(){
+		System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+		try {
+			Thread.sleep(80000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	public void test(long i){
 		

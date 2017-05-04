@@ -1,22 +1,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	      
+	      	 		
+	  	<!--
 	<parent>
 		<groupId>com.eastcom_sw.baseframe.parents</groupId>
 		<artifactId>jar-parent</artifactId>
 		<version>4.0-SNAPSHOT</version>
 	</parent>
-	  	 		
-	  	<!--
+	  -->    
 	<distributionManagement>
 		<repository>
-			<id>hw</id>
+			<id>hw-snapshots</id>
 			<name>eastcom snapshots Repository</name>
 			<url>http://23.247.25.117:8081/nexus/content/repositories/snapshots</url>
 		</repository>
 	</distributionManagement>
--->    
+
   	<groupId>com.eastcom_sw.sml</groupId>
 	<artifactId>sml</artifactId>
 	<name>sml</name>
@@ -51,18 +51,20 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
+			    <version>1.1.3</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<scope>provided</scope>
+			<version>1.2.4</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 			<version>1.1.3</version>
-			<scope>provided</scope>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>

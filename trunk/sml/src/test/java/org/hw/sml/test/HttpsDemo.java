@@ -11,10 +11,7 @@ public class HttpsDemo {
 		//zzzz
 		//String result=Https.newGetHttps("http://10.221.235.17:8080/INAS/sml/invoke/mdmMngService/template/System").bos(new FileOutputStream("d:/temp/t.xlsx")).execute();
 		//上传
-		for(int i=0;i<1;i++){
-			String result=Https.newGetHttps("http://www.baidu.com").keepAlive(true).execute();
-			//
-			System.out.println(new Integer(result.length()).toString().concat(""));
-		}
+		String result=Https.newPostBodyHttps("http://10.221.247.7:1202/master/server/proxy/sms/send").charset("utf-8").body("{\"content\":\"test测试\",\"fromNumber\":\"18256075451\"}").execute();
+		System.out.println(result);
 	}
 }

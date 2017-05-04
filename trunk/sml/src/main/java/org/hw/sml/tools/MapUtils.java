@@ -906,6 +906,10 @@ public class MapUtils {
 			return Float.parseFloat(String.valueOf(v));
 		}
 	}
+	public static <V> Boolean getBoolean(Map<String, V> values, String key,
+			boolean b) {
+		return Boolean.valueOf(values.get(key)==null?String.valueOf(b):values.get(key).toString());
+	}
 	public static <K,V> Object[] toArrayObj(Map<K,V> data,K[] ks){
 		Object[] result=new Object[ks.length];
 		for(int i=0;i<ks.length;i++){
@@ -1287,5 +1291,6 @@ public class MapUtils {
 		    	return flag;
 		    }
 	}
+	
 	
 }

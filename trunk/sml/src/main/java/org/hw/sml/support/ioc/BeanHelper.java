@@ -18,6 +18,8 @@ import org.hw.sml.support.ioc.annotation.Init;
 import org.hw.sml.support.ioc.annotation.Inject;
 import org.hw.sml.support.ioc.annotation.Stop;
 import org.hw.sml.support.ioc.annotation.Val;
+import org.hw.sml.support.time.SchedulerPanner;
+import org.hw.sml.support.time.annotation.Scheduler;
 import org.hw.sml.tools.Assert;
 import org.hw.sml.tools.ClassUtil;
 import org.hw.sml.tools.MapUtils;
@@ -298,6 +300,26 @@ public class BeanHelper {
 			e.printStackTrace();
 			System.exit(0);
 		} 
+		if(getBean(SchedulerPanner.class)==null){
+			SchedulerPanner schedulerPanner=new SchedulerPanner();
+			schedulerPanner.setConsumerThreadSize(MapUtils.getInt(propertiesHelper.getValues(),"sml.server.scheduler.consumerThreadSize",2));
+			schedulerPanner.setDepth(MapUtils.getInt(propertiesHelper.getValues(),"sml.server.scheduler.depth",10000));
+			schedulerPanner.setSkipQueueCaseInExecute(MapUtils.getBoolean(propertiesHelper.getValues(),"sml.server.scheduler.skipQueueCaseInExecute",true));
+			beanMap.put("schedulerPanner",schedulerPanner);
+		}
+		//扫描注解类任务调度
+		SchedulerPanner schedulerPanner=getBean(SchedulerPanner.class);
+		for(Map.Entry<String,Object> beans:beanMap.entrySet()){
+			if(beanErrInfo.containsKey(beans.getKey())){
+				continue;
+			}
+			for(Method method:ClassUtil.getMethods(beans.getValue().getClass())){
+				Scheduler scheduler=method.getAnnotation(Scheduler.class);
+				if(scheduler==null) continue;
+				schedulerPanner.getTaskMapContain().put("anno-"+beans.getKey()+"."+method.getName(),MapUtils.getString(propertiesHelper.getValues(),scheduler.value(),scheduler.value()));
+			}
+		}
+		schedulerPanner.init();
 		LoggerHelper.info(BeanHelper.class,"bean initd--->"+beanMap.keySet());
 	}
 	public static Object evelV(String elp) throws ElException{

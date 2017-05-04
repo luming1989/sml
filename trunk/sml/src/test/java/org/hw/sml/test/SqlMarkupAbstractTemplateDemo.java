@@ -45,16 +45,11 @@ public class SqlMarkupAbstractTemplateDemo {
 		SqlMarkupTemplate st=new SqlMarkupTemplate();
 		st.setDss(dss);
 		st.init();
-		//System.out.println(jdbcTemplate.queryForList("select 1 from DM_CO_BA_CFG_RCPT_IF where id like '%'||?||'%'", new Object[]{"-test"}));
+		System.out.println(jdbcTemplate.queryForList("select 1 from DM_CO_BA_CFG_RCPT_IF where id like '%'||?||'%'", new Object[]{"-test"},Integer.class));
 		for(int i=0;i<1;i++){
-			//Object obj=st.getSmlContextUtils().query("area-pm",new Maps().put("FLUSHCACHE","true").getMap());
-			//System.out.println(obj);
-			List<String> sqls=Arrays.asList(IOUtils.toString(new FileInputStream("D:\\temp\\2017-04-22_14-30-00-dm_re_ba_rel_hot_cell1.sql"),"gbk").split(";"));
-			for(int j=0;j<sqls.size();j+=1000){
-				jdbcTemplate.update(sqls.subList(j, j+1000));
-				System.out.println(j);
-			}
-			}
+			List<Map<String,Object>> obj=st.getSmlContextUtils().query("area-pm",new Maps().put("FLUSHCACHE","true").getMap());
+			System.out.println(obj.get(0).get("time"));
+		}
 	}
 	public static void main(String[] args) throws SQLException, InterruptedException, FileNotFoundException, IOException {
 		testQuery();

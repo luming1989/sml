@@ -2,9 +2,9 @@ import com.eastcom_sw.inas.core.service.support.queue.ManagedQuene;
 import com.eastcom_sw.inas.core.service.support.queue.Task;
 
 
-public class TaskTest {
+public class TaskTest extends ManagedQuene{
 	public static void main(String[] args) throws InterruptedException {
-		ManagedQuene mq=new ManagedQuene();
+		TaskTest mq=new TaskTest();
 		mq.setConsumerThreadSize(3);
 		mq.setTimeout(10);//s
 		mq.init();

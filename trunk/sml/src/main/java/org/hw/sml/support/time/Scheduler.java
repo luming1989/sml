@@ -34,7 +34,6 @@ public class Scheduler implements Plugin{
 		if(task==null){
 			return;
 		}
-		
 		task.setScheduler(this);
 		if(!fixedRate)
 			this.timer.schedule(task,firstTime,delay*1000);

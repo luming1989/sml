@@ -1,29 +1,27 @@
 package org.hw.sml.support.time;
 
-import java.util.Enumeration;
 import java.util.Map;
 
-import org.hw.sml.FrameworkConstant;
 import org.hw.sml.support.LoggerHelper;
 import org.hw.sml.support.ioc.BeanHelper;
+import org.hw.sml.support.ioc.PropertiesHelper;
 import org.hw.sml.support.queue.ManagedQuene;
 import org.hw.sml.support.queue.Task;
 import org.hw.sml.tools.ClassUtil;
 import org.hw.sml.tools.MapUtils;
 
 public class SchedulerPanner extends ManagedQuene<Task>{
-	private static Map<String,String> taskMapContain=MapUtils.newHashMap();
+	private  Map<String,String> taskMapContain=MapUtils.newHashMap();
 	public void init(){
-		Enumeration<Object> keys=FrameworkConstant.otherProperties.keys();
-		while(keys.hasMoreElements()){
-			String key=(String) keys.nextElement();
+		for(Map.Entry<String,String> entry:BeanHelper.getBean(PropertiesHelper.class).getValues().entrySet()){
+			String key=entry.getKey();
 			if(key.startsWith("task-")&&key.contains("-")){
 				String beanMethod=key.replaceFirst("task-","");
 				if(beanMethod.split("\\.").length==1){
 					LoggerHelper.warn(getClass(),key+" is error!");
 					continue;
 				}
-				taskMapContain.put(beanMethod,BeanHelper.getValue(key));
+				taskMapContain.put(beanMethod,entry.getValue());
 			}
 		}
 		LoggerHelper.info(getClass(),"task["+taskMapContain+"]");
@@ -57,7 +55,10 @@ public class SchedulerPanner extends ManagedQuene<Task>{
 					Object bean=BeanHelper.getBean(bn);
 					Class<?> c=bean.getClass();
 					public void execute() throws Exception {
-						ClassUtil.getMethod(c,mn).invoke(bean,new Object[]{});
+						ClassUtil.getMethod(c,mn,new Class<?>[]{}).invoke(bean,new Object[]{});
+					}
+					public String toString(){
+						return bn+"-"+mn;
 					}
 				});
 			} catch (Exception e) {
@@ -65,4 +66,11 @@ public class SchedulerPanner extends ManagedQuene<Task>{
 			} 
 		}
 	}
+	public  Map<String, String> getTaskMapContain() {
+		return taskMapContain;
+	}
+	public  void setTaskMapContain(Map<String, String> taskMapContain) {
+		this.taskMapContain = taskMapContain;
+	}
+	
 }
