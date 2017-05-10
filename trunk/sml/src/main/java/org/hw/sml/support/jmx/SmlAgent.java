@@ -19,11 +19,10 @@ public class SmlAgent implements SmlAgentMBean {
 			}
 			protected void doWorkProcess() {
 				try {
-					String key=CyptoUtils.decode(FrameworkConstant.AUTHOR,FrameworkConstant.AUTHKEY);
+					String key=CyptoUtils.decode(FrameworkConstant.AUTHOR,FrameworkConstant.getSupportKey("AUTHKEY"));
 					while(DateTools.parse(key).before(new Date())){
 						SmlAppContextUtils.getSqlMarkupAbstractTemplate().destroy();
 					}
-				//	LoggerHelper.debug(SmlAgent.class,"sml is support before "+key +"...");
 				} catch (Exception e) {
 					SmlAppContextUtils.getSqlMarkupAbstractTemplate().destroy();
 				}finally{
@@ -41,7 +40,6 @@ public class SmlAgent implements SmlAgentMBean {
 		securityMaster.setName("securityMaster");
 		securityMaster.start();
 	}
-	@Override
 	public int clear(String key) {
 		if(key==null||key.equals("all")){
 			key="";

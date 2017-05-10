@@ -21,7 +21,7 @@ public class SqlResolvers {
 	public SqlResolvers(El el){
 		this.el=el;
 	}
-	public void init(){
+	public SqlResolvers init(){
 		sqlResolvers=new ArrayList<SqlResolver>();
 		sqlResolvers.add(new ParamTypeResolver());
 		sqlResolvers.add(new IfSqlResolver());
@@ -29,10 +29,12 @@ public class SqlResolvers {
 		sqlResolvers.add(new ForeachResolver());
 		sqlResolvers.addAll(extResolvers);
 		sqlResolvers.add(new ParamSqlResolver());
+		return this;
 	}
 	
-	public void add(SqlResolver sqlResolver){
+	public SqlResolvers add(SqlResolver sqlResolver){
 		sqlResolvers.add(sqlResolver);
+		return this;
 	}
 	
 	public  Rst resolverLinks(String sql,SMLParams smlParams){
@@ -48,7 +50,6 @@ public class SqlResolvers {
 			if(subRst.getExtInfo()!=null&&subRst.getExtInfo().size()>0){
 				extInfo.putAll(subRst.getExtInfo());
 			}
-			
 		}
 		return new Rst(sql,paramsObject).setExtInfo(extInfo);
 	}

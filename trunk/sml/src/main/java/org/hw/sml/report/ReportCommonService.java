@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.hw.sml.FrameworkConstant;
-import org.hw.sml.FrameworkConstant.Type;
 import org.hw.sml.jdbc.RowMapper;
 import org.hw.sml.model.Result;
 import org.hw.sml.report.model.Constants;
@@ -34,7 +33,7 @@ public class ReportCommonService extends Source{
 		if(getCacheManager().get(key)!=null){
 			return (PiTable)getCacheManager().get(key);
 		}
-		PiTable result=getJdbc("defJt").queryForObject(FrameworkConstant.getSupportKey(frameworkMark, Type.FRAMEWORK_CFG_REPORT_SQL),new Object[]{id},new RowMapper<PiTable>(){
+		PiTable result=getJdbc("defJt").queryForObject(FrameworkConstant.getSupportKey(frameworkMark,"CFG_REPORT_SQL"),new Object[]{id},new RowMapper<PiTable>(){
 			public PiTable mapRow(ResultSet rs, int arg1) throws SQLException {
 				PiTable pi=new PiTable();
 				pi.setId(rs.getString("id"));
@@ -53,7 +52,7 @@ public class ReportCommonService extends Source{
 		if(getCacheManager().get(key)!=null){
 			return (List<PiTableDetail>)getCacheManager().get(key);
 		}
-		List<PiTableDetail> result= getJdbc("defJt").query(FrameworkConstant.getSupportKey(frameworkMark,Type.FRAMEWORK_CFG_REPORT_DETAIL_SQL),new Object[]{id},new RowMapper<PiTableDetail>(){
+		List<PiTableDetail> result= getJdbc("defJt").query(FrameworkConstant.getSupportKey(frameworkMark,"CFG_REPORT_DETAIL_SQL"),new Object[]{id},new RowMapper<PiTableDetail>(){
 			public PiTableDetail mapRow(ResultSet rs, int arg1) throws SQLException {
 				PiTableDetail pi=new PiTableDetail();
 				pi.setTableId(rs.getString("table_id"));

@@ -63,7 +63,7 @@ public class CallableHelper {
 			results.add(exec.submit(cls[i]));
 		}
 		try {
-			Thread.sleep(10);//对于10ms内的任务不至于升到100s
+			Thread.sleep(10);//对于10ms内的任务不至于升到100ms
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}

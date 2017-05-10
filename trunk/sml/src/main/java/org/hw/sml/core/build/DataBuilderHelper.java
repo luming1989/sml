@@ -20,25 +20,26 @@ import org.hw.sml.tools.MapUtils;
 public class DataBuilderHelper {
 	public static Map<Integer,String> classType=new HashMap<Integer,String>();
 	public static List<String> splitClass=new ArrayList<String>();
+	static String classPathPreFix=FrameworkConstant.getSupportKey("CFG_DEFAULT_BUILDER_CLASS");
 	static{
-		classType.put(0,FrameworkConstant.CFG_DEFAULT_BUILDER_CLASS+".DefaultDataBuilder");
-		classType.put(1,FrameworkConstant.CFG_DEFAULT_BUILDER_CLASS+".FieldDataBuilder");
-		classType.put(2,FrameworkConstant.CFG_DEFAULT_BUILDER_CLASS+".GroupDataBuilder");
-		classType.put(3,FrameworkConstant.CFG_DEFAULT_BUILDER_CLASS+".GroupFieldDataBuilder");
-		classType.put(4,FrameworkConstant.CFG_DEFAULT_BUILDER_CLASS+".SingleDataBuilder");
-		classType.put(5,FrameworkConstant.CFG_DEFAULT_BUILDER_CLASS+".Group2FieldDataBuilder");
-		classType.put(6,FrameworkConstant.CFG_DEFAULT_BUILDER_CLASS+".OrderDataBuilder");
+		classType.put(0,classPathPreFix+".DefaultDataBuilder");
+		classType.put(1,classPathPreFix+".FieldDataBuilder");
+		classType.put(2,classPathPreFix+".GroupDataBuilder");
+		classType.put(3,classPathPreFix+".GroupFieldDataBuilder");
+		classType.put(4,classPathPreFix+".SingleDataBuilder");
+		classType.put(5,classPathPreFix+".Group2FieldDataBuilder");
+		classType.put(6,classPathPreFix+".OrderDataBuilder");
 		
 		
-		splitClass.add(FrameworkConstant.CFG_DEFAULT_BUILDER_CLASS+".PageSplitDataBuilder");
-		splitClass.add(FrameworkConstant.CFG_DEFAULT_BUILDER_CLASS+".PageDataBuilder");
+		splitClass.add(classPathPreFix+".PageSplitDataBuilder");
+		splitClass.add(classPathPreFix+".PageDataBuilder");
 	}
 	public static boolean isPageSplit(String classpath){
 		if(classpath==null){
 			return false;
 		}
 		if(!classpath.contains(".")){
-			classpath=FrameworkConstant.CFG_DEFAULT_BUILDER_CLASS+"."+classpath;
+			classpath=classPathPreFix+"."+classpath;
 		}
 		return splitClass.contains(classpath);
 	}
@@ -86,7 +87,7 @@ public class DataBuilderHelper {
 		String classpath=rebuildParam.getClasspath();
 		if(classpath!=null){
 			if(!classpath.contains(".")){
-				classpath=FrameworkConstant.CFG_DEFAULT_BUILDER_CLASS+"."+classpath;
+				classpath=classPathPreFix+"."+classpath;
 			}
 			return classpath;
 		}

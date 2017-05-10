@@ -165,8 +165,6 @@ public class DelegatedSqlMarkupAbstractTemplate {
 	public String getClassName(){
 		return mark.length()>0?(mark+"-"+this.getClass().getSimpleName()):this.getClass().getSimpleName();
 	}
-	//子类中，如果没有定义id则用类名+方法作为ifId
-		String s = "标识-当前类名已知-方法名已知";
 	public JdbcTemplate getJdbc(String dbid){
 		return sqlMarkupAbstractTemplate.getJdbc(dbid);
 	}

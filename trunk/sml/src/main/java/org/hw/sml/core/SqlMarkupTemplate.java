@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.hw.sml.FrameworkConstant;
-import org.hw.sml.FrameworkConstant.Type;
 import org.hw.sml.jdbc.RowMapper;
 import org.hw.sml.model.SqlTemplate;
 
@@ -23,7 +22,7 @@ public class SqlMarkupTemplate extends  SqlMarkupAbstractTemplate{
 	
 	private SqlTemplate getSqlTemplateWithOutCache(String id) {
 		try{
-			SqlTemplate sqt= getJdbc("defJt").queryForObject(FrameworkConstant.getSupportKey(frameworkMark,Type.FRAMEWORK_CFG_JDBC_SQL),new Object[]{id},new RowMapper<SqlTemplate>(){
+			SqlTemplate sqt= getJdbc("defJt").queryForObject(FrameworkConstant.getSupportKey(frameworkMark,"CFG_JDBC_SQL"),new Object[]{id},new RowMapper<SqlTemplate>(){
 				public SqlTemplate mapRow(ResultSet rs, int arg1)
 						throws SQLException {
 					SqlTemplate st=new SqlTemplate();

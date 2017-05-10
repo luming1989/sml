@@ -42,7 +42,7 @@ public class CallableDemo {
 		}
 		//一台打印机花费
 		long start=System.currentTimeMillis();
-		CallableHelper.callresults(10,size,e.toArray(new Callable[e.size()]));
+		CallableHelper.callresults(1,size,e.toArray(new Callable[e.size()]));
 		System.out.println(size+"台打印机花费-->"+(System.currentTimeMillis()-start));
 		
 	}

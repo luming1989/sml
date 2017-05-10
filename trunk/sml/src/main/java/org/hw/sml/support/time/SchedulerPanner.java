@@ -12,6 +12,7 @@ import org.hw.sml.tools.MapUtils;
 
 public class SchedulerPanner extends ManagedQuene<Task>{
 	private  Map<String,String> taskMapContain=MapUtils.newHashMap();
+	private  Map<String,Boolean> taskMapStatus=MapUtils.newHashMap();
 	public void init(){
 		for(Map.Entry<String,String> entry:BeanHelper.getBean(PropertiesHelper.class).getValues().entrySet()){
 			String key=entry.getKey();
@@ -26,6 +27,8 @@ public class SchedulerPanner extends ManagedQuene<Task>{
 		}
 		LoggerHelper.info(getClass(),"task["+taskMapContain+"]");
 		if(taskMapContain.size()>0){
+			for(String key:taskMapContain.keySet())
+			taskMapStatus.put(key,true);
 			super.init();
 			Scheduler sd=new Scheduler();
 			sd.setTask(new TimerTask() {
@@ -45,7 +48,7 @@ public class SchedulerPanner extends ManagedQuene<Task>{
 				TaskModel tm=new TaskModel();
 				tm.setElp(value);
 				tm.init();
-				if(!tm.isExecuteNow()){
+				if(!tm.isExecuteNow()||!taskMapStatus.get(key)){
 					continue;
 				}
 				super.add(new Task() {
@@ -71,6 +74,12 @@ public class SchedulerPanner extends ManagedQuene<Task>{
 	}
 	public  void setTaskMapContain(Map<String, String> taskMapContain) {
 		this.taskMapContain = taskMapContain;
+	}
+	public Map<String, Boolean> getTaskMapStatus() {
+		return taskMapStatus;
+	}
+	public void setTaskMapStatus(Map<String, Boolean> taskMapStatus) {
+		this.taskMapStatus = taskMapStatus;
 	}
 	
 }
