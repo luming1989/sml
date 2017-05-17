@@ -3,6 +3,7 @@ package org.hw.sml.test.bean;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ public class A {
 	private Short s;
 	private Float f;
 	private Boolean flag;
+	private int count;
 	public A(int i){
 		this.i=i;
 	}
@@ -33,11 +35,33 @@ public class A {
 	public String get(String ... strs){
 		return Arrays.asList(strs).toString();
 	}
-	@Scheduler("min1|00|00")
-	public void test(){
+	@Scheduler(Scheduler.min1)
+	public void test() throws ElException{
+	
 		System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 		try {
-			Thread.sleep(80000);
+			Thread.sleep(10);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	@Scheduler(Scheduler.min1)
+	public void test2() throws ElException{
+		if(count++==1){
+			BeanHelper.evelV("#{schedulerPanner.taskMapStatus.put(('anno-aBean.test'),true)}");
+		}
+		System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	@Scheduler(Scheduler.min1)
+	public void test3(){
+		System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+		try {
+			Thread.sleep(10);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -87,7 +111,7 @@ public class A {
 		System.out.println(BeanHelper.evelV("#{(['a','b','c','d',{a:{a:2,c:3},b:'eeeee'}]).containsAll((['a','b']))}"));
 		System.out.println(BeanHelper.evelV("#{('a').length().toString().concat(('dess,sss')).equals(('1dess,sss'))}"));
 		System.out.println(BeanHelper.evelV("#{([1]).toArray()}"));
-		//System.out.println(BeanHelper.evelV("#{sml.getDefJt().queryForList('select * from dual where 1<? and 'a'||'c'=?',(#{([2,'ace']).toArray()}))}"));
+		System.out.println("=-----="+BeanHelper.evelV("#{sml.getDefJt().queryForList('select * from dual where 1<? and 'a'||'c'=?',(#{([2,'ace']).toArray()}))}"));
 		Map map=(Map) BeanHelper.evelV("{'a':1,'b':2,'c':({234i:'3','e':'4','f':({'g':'6'})})}");
 		System.out.println(map);
 		System.out.println(BeanHelper.evelV("{a:({b:1,c:   ({d:1})   })}"));
@@ -103,6 +127,12 @@ public class A {
 		//"".equals(anObject)
 		Boolean flag=new Object().getClass().isAssignableFrom(Integer.class);
 		System.out.println(flag);
+		System.out.println(BeanHelper.evelV("#{schedulerPanner.getTaskMapStatus().put(('anno-aBean.test'),false)}"));
+		System.out.println(BeanHelper.evelV("#{schedulerPanner.getTaskMapStatus()}"));
+		Map<String,String> m=new HashMap<String,String>();
+		String key=m.put("a","b");
+		key=m.put("a","c");
+		System.out.println(key);
 	}
 
 

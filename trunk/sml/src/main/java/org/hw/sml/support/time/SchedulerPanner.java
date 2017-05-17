@@ -81,5 +81,10 @@ public class SchedulerPanner extends ManagedQuene<Task>{
 	public void setTaskMapStatus(Map<String, Boolean> taskMapStatus) {
 		this.taskMapStatus = taskMapStatus;
 	}
+	public static void main(String[] args) {
+		SchedulerPanner sp=new SchedulerPanner();
+		sp.init();
+		System.out.println(sp);
+	}
 	
 }

@@ -217,7 +217,7 @@ public class BeanHelper {
 						Assert.notNull(configName, "beanName:"+beanName+"-"+bean.getClass()+",field config "+filed.getName()+" is null");
 						filed.setAccessible(true);
 						Assert.notNull(getValue(configName), "beanName:["+beanName+"-"+bean.getClass()+"],field value "+filed.getName()+" is null");
-						filed.set(beanMap.get(beanName),ClassUtil.convertValueToRequiredType(getValue(configName),filed.getType()));
+						filed.set(beanMap.get(beanName),ClassUtil.convertValueToRequiredType(getValue(configName,config.isEvel()),filed.getType()));
 					}
 					//方法注入方式
 					Method[] methods=ClassUtil.getMethods(clazz);
@@ -229,7 +229,7 @@ public class BeanHelper {
 						String configName=val.value();
 						method.setAccessible(true);
 						Assert.notNull(getValue(configName), "beanName:["+beanName+"-"+bean.getClass()+"],method param "+method.getName()+" is null");
-						method.invoke(beanMap.get(beanName),ClassUtil.convertValueToRequiredType(getValue(configName),method.getParameterTypes()[0]));
+						method.invoke(beanMap.get(beanName),ClassUtil.convertValueToRequiredType(getValue(configName,val.isEvel()),method.getParameterTypes()[0]));
 					}
 				}
 			}
@@ -350,7 +350,10 @@ public class BeanHelper {
 		}
 	}
 	public static int start(){
-		return 1;
+		return start(new String[]{});
+	}
+	public static int start(String[] args){
+		return 0;
 	}
 	public static <T> T getBean(String name){
 		return (T)beanMap.get(name);
@@ -367,6 +370,12 @@ public class BeanHelper {
 	}
 	public static String getValue(String key){
 		return propertiesHelper.getValue(key);
+	}
+	public static Object getValue(String key,boolean isEvel) throws ElException{
+		if(!isEvel)
+			return propertiesHelper.getValue(key);
+		else
+			return evelV(propertiesHelper.getValue(key));
 	}
 	public static Object getValue(String type,String key) throws IllegalArgumentException, IllegalAccessException, ElException{
 		if(type==null){
@@ -416,6 +425,7 @@ public class BeanHelper {
 						e.printStackTrace();
 					} 
 				}});
+			thread.setName(bean.getClass().getSimpleName()+"."+method.getName());
 			thread.start();
 			LoggerHelper.info(BeanHelper.class,"bean["+bean.getClass()+"]"+method.getName()+" lazy load sleep "+ms+" s!");
 		}else{
@@ -431,6 +441,6 @@ public class BeanHelper {
 		}
 	}
 	public static void main(String[] args) {
-		BeanHelper.start();
+		BeanHelper.start(args);
 	}
 }
