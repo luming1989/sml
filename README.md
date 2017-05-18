@@ -1,5 +1,28 @@
 # sml
-小、可配置维护的、灵活的java操作工具类（200kb），易开发可配置扩展程序。
+小、可配置维护的、灵活的java操作工具类（200kb+），易开发可配置扩展程序。
+## features
+
+ * 无依赖：无三方jar包依赖，可独立使用
+ 
+ * IOC：本身为容器，对象生命周期，依赖管理
+ 
+ * jdbc: 对jdbc进行轻量级封装达到快速访问数据库，参考spring-jdbc实现
+ 
+ * sml: sql标记语言，提代一套标签语法（参考ibatis,mybatis）为动态sql提供执行引擎，可动态开发接口服务
+ 
+ * el : sml表达示语言，方法对象操作访问
+ 
+ * tools:提供常用工具类：MapUtils,Https,CallableHelper,ClassHelper,QueueManaged,ThreadManaged...
+ 
+ * 报表支持：有一块基于模型驱动报表引擎，封装对报表模型增删改查操作，可替代mybatis-generator功能，获取更高效的开发，可维护性
+ 
+## 适用场景
+
+ * sql书写较多的应用，sql驱动型服务应用
+ 
+ * 服务频繁更新
+ 
+ * 低配置环境下的服务开发
 
 ##Getting started
 ###Add the maven dependency
@@ -38,7 +61,7 @@
 	private int age;
 	@Inject("doubleBean")
 	private Double height;
-	@Val("['未婚','已当爸']")
+	@Val("['成功','失败']")
 	private List<String> infos;
  	@Init(delay=true,sleep=5)//对象创建5s后执行
 	public void init(){
@@ -72,14 +95,15 @@
 ```
 ## jdbc 数据库访问
    提供了简单的JdbcTemplate对象操作数据库，结合标签语法为动态sql提供执行引擎
+   
+* mybatis,ibatis书写sql的方便，但调整xml配置文件整体服务需要重新启动
 
-1、mybatis,ibatis书写sql的方便，但调整xml配置文件整体服务需要重新启动
+* 一段完整的sql查询包括    查询sql+参数集
 
-2、一段完整的sql查询包括    查询sql+参数集
+* marks `isEmpty`,`isNotEmpty`,`select`,`jdbcType`,`if`
 
-3、marks  `isEmpty`,`isNotEmpty`,`select`,`jdbcType`,`if`;
+* elp    jsEl,spl implements El interface; 
 
-4、elp    jsEl,spl implements El interface;
  example sql
 ```sql
       select * from table t where 1=1 
@@ -144,7 +168,7 @@ result
 ```
    上面两类内容进行替换
  ## https Http Client功能
-      底层API,200行实现对http常用请求，包含连接保持，乱码处理，多文件多参数上传，下载
+      底层API+协议,实现对http常用请求，包含连接保持，权限认证，乱码处理，多文件多参数上传，下载
 ```java
 	//get请求保持连接，返回utf-8编码
 	String result=Https.newGetHttps("http://www.baidu.com").keepAlive(true).charset("utf-8").execute();
