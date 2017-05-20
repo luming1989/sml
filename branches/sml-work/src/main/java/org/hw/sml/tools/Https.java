@@ -8,9 +8,13 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.DatatypeConverter;
 /**
  * httpclient  get|post
  * @author wen
@@ -41,6 +45,13 @@ public class Https {
 		this.keepAlive=ka;
 		return this;
 	}
+	public Https auth(String type,String credentials){
+		getHeader().put("Authorization", type+" "+credentials);
+		return this;
+	}
+	public Https basicAuth(String credentials){
+		return auth("Basic",DatatypeConverter.printBase64Binary(credentials.getBytes()));
+	}
 	public static Https newPostFormHttps(String url){
 		Https https= new Https(url).method(METHOD_POST);
 		https.getHeader().put("Content-Type","application/x-www-form-urlencoded");
@@ -60,12 +71,20 @@ public class Https {
 	private boolean isUpload=false;
 	private String boundary;
 	private Paramer paramer=new Paramer();
+	private Proxy proxy;
+	private Header responseHeader;
 	public Https charset(String charset){
 		this.charset=charset;
 		return this;
 	}
 	public Https connectTimeout(int timeout){
 		this.connectTimeout=timeout;
+		return this;
+	}
+	public Https proxy(Proxy proxy,String auths){
+		this.proxy=proxy;
+		if(auths!=null)
+		getHeader().put("Proxy-Authorization", "Basic "+DatatypeConverter.printBase64Binary(auths.getBytes()));
 		return this;
 	}
 	private Https method(String method){
@@ -168,6 +187,12 @@ public class Https {
 		public String getResponseCharset() {
 			return responseCharset;
 		}
+		public Map<String, String> getHeader() {
+			return header;
+		}
+		public void setHeader(Map<String, String> header) {
+			this.header = header;
+		}
 		
 	}
 	private int responseStatus;
@@ -183,7 +208,7 @@ public class Https {
 		String qps=this.paramer.builder(header.requestCharset);
 		if(qps!=null&&(this.method.equals(METHOD_GET)||body!=null)) url+=(url.contains("?")?"&":"?")+qps;
 		URL realUrl = new URL(url);
-		HttpURLConnection conn = (HttpURLConnection) realUrl.openConnection();
+		HttpURLConnection conn = (HttpURLConnection) (proxy==null?realUrl.openConnection():realUrl.openConnection(proxy));
 		for(Map.Entry<String,String> entry:header.header.entrySet())
 			conn.addRequestProperty(entry.getKey(),entry.getValue());
 		if(connectTimeout!=0)
@@ -236,11 +261,16 @@ public class Https {
 			while((temp=is.read(bytes))!=-1){
 				bos.write(bytes,0,temp);
 			}
+			responseHeader=new Header(null,null);
+			for(Map.Entry<String,List<String>> entry:conn.getHeaderFields().entrySet()){
+				responseHeader.put(entry.getKey(),entry.getValue().get(0));
+			}
 		}catch(IOException e){
 			throw e;
 		}finally{
 			this.responseStatus=conn.getResponseCode();
 			this.responseMessage=conn.getResponseMessage();
+			
 			if(conn!=null&&!keepAlive)
 				conn.disconnect();
 			if(out!=null)
@@ -249,6 +279,9 @@ public class Https {
 				is.close();
 			if(ds!=null)
 				ds.close();
+			if(bos!=null){
+				bos.close();
+			}
 		}
 		return (bos instanceof ByteArrayOutputStream)?((ByteArrayOutputStream)bos).toByteArray():new byte[0];
 	}
@@ -259,6 +292,9 @@ public class Https {
 	public Https body(byte[] requestBody){
 		this.body=requestBody;
 		return this;
+	}
+	public Header getResponseHeader(){
+		return this.responseHeader;
 	}
 	public Https body(UpFile ... uf){
 		this.body=uf;

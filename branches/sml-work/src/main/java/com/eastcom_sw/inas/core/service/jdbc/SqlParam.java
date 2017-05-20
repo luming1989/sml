@@ -1,10 +1,13 @@
 package com.eastcom_sw.inas.core.service.jdbc;
 
 import java.io.Serializable;
+import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Date;
 
 import org.hw.sml.jdbc.JdbcTemplate;
 
+import com.eastcom_sw.inas.core.service.tools.Assert;
 import com.eastcom_sw.inas.core.service.tools.DateTools;
 
 
@@ -139,15 +142,17 @@ public class SqlParam implements Serializable{
 	public void handlerValue(String value2) {
 		if(this.type.equals("date")){
 			this.value=DateTools.parse(value2);
+		}else if(this.type.equals("time")){
+			this.value=getTime(DateTools.parse(value2));
 		}else if(this.type.equals("array")){
 			this.value=buildStr(value2);
 		}else if(this.type.equals("array-char")||this.type.equals("array_char")){
 			this.value=value2.split(split);
-		}else if(this.type.equals("array-date")||this.type.equals("array_date")){
+		}else if(this.type.equals("array-date")||this.type.equals("array-time")||this.type.equals("array_date")){
 			String vs[]=value2.split(split);
 			Object[] objs=new Object[vs.length];
 			for(int i=0;i<vs.length;i++){
-				objs[i]=DateTools.parse(vs[i]);
+				objs[i]=this.type.endsWith("date")?DateTools.parse(vs[i]):getTime(DateTools.parse(vs[i]));
 			}
 			this.value=objs;
 		}else if(this.type.equals("timestamp")){
@@ -155,7 +160,10 @@ public class SqlParam implements Serializable{
 		}else{
 			this.value=value2;
 		}
-		
+	}
+	private Time getTime(Date date){
+		Assert.notNull(date,"params "+this.name+" is time but is null");
+		return new Time(date.getTime());
 	}
 
 	public void handlerDefaultValue(JdbcTemplate jdbc) {

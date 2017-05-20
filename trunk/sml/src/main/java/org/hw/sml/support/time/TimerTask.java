@@ -3,8 +3,6 @@ package org.hw.sml.support.time;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import org.hw.sml.tools.DateTools;
-
 public abstract class TimerTask implements Runnable{
 	
 	private int times=Integer.MAX_VALUE;

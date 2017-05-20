@@ -113,6 +113,9 @@ public class DelegatedSqlMarkupAbstractTemplate {
 	 * @param params
 	 * @return
 	 */
+	public <T> T queryComm(Map<String,String> params){
+		return query(params.get("ifId"),params);
+	}
 	public <T> T query(String ifId,Map<String,String> params){
 		return sqlMarkupAbstractTemplate.getSmlContextUtils().query(ifId,params);
 	}

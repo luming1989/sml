@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
 public @interface Scheduler {
     String value();
     boolean triggerdCondition() default true;
-    public static String min1="min1|00|00";
+    public static String min1="min1";
 }
