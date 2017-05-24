@@ -1,8 +1,11 @@
 *.class
 .settings/*
+*/*/*.settings/*
 target/*
+*/*/target/*
+*/*/*.classpath
 .classpath
-.project
+*.project
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
