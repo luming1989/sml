@@ -5,6 +5,8 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import org.hw.sml.FrameworkConstant;
 import org.hw.sml.core.resolver.SqlResolver;
 import org.hw.sml.jdbc.JdbcTemplate;
@@ -158,8 +160,16 @@ public class JFContextUtils {
 			}
 		}
 	}
-	
-	
+	public void registDataSource(String dbid,DataSource dataSource){
+		jdbcFTemplate.getDss().put(dbid,dataSource);
+		jdbcFTemplate.getJts().put(dbid,jdbcFTemplate.newJdbcTemplate(dataSource));
+	}
+	public Rslt queryRslt(String dbid,String sql,Map<String,String> params){
+		return jdbcFTemplate.queryRslt(dbid, sql, params);
+	}
+	public  List<Map<String,Object>> query(String dbid,String sql,Map<String,String> params){
+		return jdbcFTemplate.querySql(dbid, sql, params);
+	}
 	public static boolean isNotBlank(Object val) {
 		return val != null && String.valueOf(val).trim().length() > 0;
 	}

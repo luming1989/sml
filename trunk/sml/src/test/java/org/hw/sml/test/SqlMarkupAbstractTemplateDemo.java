@@ -45,11 +45,7 @@ public class SqlMarkupAbstractTemplateDemo {
 		SqlMarkupTemplate st=new SqlMarkupTemplate();
 		st.setDss(dss);
 		st.init();
-		System.out.println(jdbcTemplate.queryForList("select 1 from DM_CO_BA_CFG_RCPT_IF where id like '%'||?||'%'", new Object[]{"-test"},Integer.class));
-		for(int i=0;i<1;i++){
-			List<Map<String,Object>> obj=st.getSmlContextUtils().query("area-pm",new Maps().put("FLUSHCACHE","true").getMap());
-			System.out.println(obj.get(0).get("time"));
-		}
+		st.getSmlContextUtils().query("defJt","select 1 from dual where 1=1  <if test=\" '@a'=='1' \">and 1<2</if>",new Maps<String,String>().put("a","1").getMap());
 	}
 	public static void main(String[] args) throws SQLException, InterruptedException, FileNotFoundException, IOException {
 		testQuery();

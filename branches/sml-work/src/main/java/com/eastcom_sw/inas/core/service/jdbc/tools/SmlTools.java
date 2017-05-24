@@ -3,11 +3,11 @@ package com.eastcom_sw.inas.core.service.jdbc.tools;
 import java.util.Map;
 
 import org.hw.sml.core.resolver.JsEngine;
-import org.hw.sml.tools.MapUtils;
 
 import com.eastcom_sw.inas.core.service.jdbc.RebuildParam;
 import com.eastcom_sw.inas.core.service.jdbc.SqlParam;
 import com.eastcom_sw.inas.core.service.jdbc.SqlParams;
+import com.eastcom_sw.inas.core.service.jdbc.SqlTemplate;
 
 public class SmlTools {
 	public static SqlParams toSplParams(String sqlPStr){
@@ -111,17 +111,15 @@ public class SmlTools {
 		result =JsEngine.evel("new date().getday()").toString();
 		return result;
 	}
-	public static void main(String[] args) {
-		JsEngine.evel("Date.getDay().toString()");
-		long start=System.currentTimeMillis();
-		Map<String,String> vs=MapUtils.newHashMap();
-		String key="new Date().getDay().toString()";
-		for(int i=0;i<100000;i++){
-			if(!vs.containsKey(key)){
-				vs.put(key,JsEngine.evel(key).toString());
-			}
-			String result=vs.get(key);
+	public static SqlTemplate toSqlTemplate(String dbid,String sql,Map<String,String> params){
+		SqlTemplate st=new SqlTemplate();
+		st.setDbid(dbid);
+		st.setMainSql(sql);
+		SqlParams sp=new SqlParams();
+		for(Map.Entry<String,String> entry:params.entrySet()){
+			sp.add(entry.getKey(),entry.getValue());
 		}
-		System.out.println(System.currentTimeMillis()-start);
+		st.setSqlParamMap(sp.reinit());
+		return st;
 	}
 }

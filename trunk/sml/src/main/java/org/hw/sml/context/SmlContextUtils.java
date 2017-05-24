@@ -5,6 +5,8 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import org.hw.sml.FrameworkConstant;
 import org.hw.sml.core.Rslt;
 import org.hw.sml.core.SqlMarkupAbstractTemplate;
@@ -62,6 +64,9 @@ public class SmlContextUtils {
 		SqlTemplate st=sqlMarkupAbstractTemplate.getSqlTemplate(ifId);
 		return (T)query(st,params);
 	}
+	public  List<Map<String,Object>> query(String dbid,String sql,Map<String,String> params){
+		return sqlMarkupAbstractTemplate.querySql(dbid, sql, params);
+	}
 	@SuppressWarnings("unchecked")
 	public <T> T query(String ifId,String paramsStr){
 		if(paramsStr.trim().startsWith("{")&&paramsStr.trim().endsWith("}"))
@@ -91,6 +96,9 @@ public class SmlContextUtils {
 		reInitSqlParam(st, getJdbc(st.getDbid()), params);
 		return sqlMarkupAbstractTemplate.queryRslt(st);
 	}
+	public Rslt queryRslt(String dbid,String sql,Map<String,String> params){
+		return sqlMarkupAbstractTemplate.queryRslt(dbid, sql, params);
+	}
 	public int update(String ifId,Map<String,String> params){
 		if(Boolean.valueOf(params.get(FrameworkConstant.PARAM_FLUSHCACHE))){
 			clear(ifId);
@@ -109,7 +117,10 @@ public class SmlContextUtils {
 			return update(sqlMarkupAbstractTemplate.getJsonMapper().toObj(paramsStr,Map.class));
 		return update(MapUtils.transMapFromStr(paramsStr));
 	}
-	
+	public void registDataSource(String dbid,DataSource dataSource){
+		sqlMarkupAbstractTemplate.getDss().put(dbid,dataSource);
+		sqlMarkupAbstractTemplate.getJts().put(dbid,sqlMarkupAbstractTemplate.newJdbcTemplate(dataSource));
+	}
 	public  int clear(String keyStart){
 		if(!isNotBlank(keyStart))
 			return getCacheManager().clearKeyStart(SqlMarkupAbstractTemplate.CACHE_PRE);

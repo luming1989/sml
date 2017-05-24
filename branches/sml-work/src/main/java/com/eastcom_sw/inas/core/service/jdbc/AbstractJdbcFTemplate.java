@@ -57,7 +57,9 @@ public abstract class AbstractJdbcFTemplate extends Source implements IJdbcFTemp
 		}
 	}
 	
-
+	public List<Map<String,Object>> querySql(String dbid,String sql,Map<String,String> params){
+		return mergeSql(SmlTools.toSqlTemplate(dbid, sql, params));
+	}
 	@SuppressWarnings("unchecked")
 	public List<Map<String,Object>> mergeSql(SqlTemplate st){
 		SqlResolvers sqlResolvers=getSqlResolvers();
@@ -138,6 +140,9 @@ public abstract class AbstractJdbcFTemplate extends Source implements IJdbcFTemp
 		if(isLogger&&(st.getSqlParamMap().getSqlParam("igLog")==null||st.getSqlParamMap().getSqlParam("igLog").getValue().equals("false")))
 		LoggerHelper.info(getClass(),"sql["+rst.getSqlString()+"],params"+paramsObject.toString());
 		return getJdbc(st.getDbid()).query(sqlString,paramsObject.toArray(new Object[]{}), new Rset());
+	}
+	public Rslt queryRslt(String dbid,String sql,Map<String,String> params){
+		return queryRslt(SmlTools.toSqlTemplate(dbid, sql, params));
 	}
 
 	

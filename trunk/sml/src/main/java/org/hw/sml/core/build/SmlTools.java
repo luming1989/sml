@@ -1,10 +1,24 @@
 package org.hw.sml.core.build;
 
+import java.util.Map;
+
 import org.hw.sml.core.RebuildParam;
 import org.hw.sml.model.SMLParam;
 import org.hw.sml.model.SMLParams;
+import org.hw.sml.model.SqlTemplate;
 
 public class SmlTools {
+	public static SqlTemplate toSqlTemplate(String dbid,String sql,Map<String,String> params){
+		SqlTemplate st=new SqlTemplate();
+		st.setDbid(dbid);
+		st.setMainSql(sql);
+		SMLParams sp=new SMLParams();
+		for(Map.Entry<String,String> entry:params.entrySet()){
+			sp.add(entry.getKey(),entry.getValue());
+		}
+		st.setSmlParams(sp.reinit());
+		return st;
+	}
 	public static SMLParams toSplParams(String sqlPStr){
 		String split=",";
 		SMLParams sqlParams=new SMLParams();

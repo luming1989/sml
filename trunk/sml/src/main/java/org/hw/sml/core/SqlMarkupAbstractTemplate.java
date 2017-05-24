@@ -79,7 +79,9 @@ public abstract class SqlMarkupAbstractTemplate extends Source implements SqlMar
 		getCacheManager().set(key, result, st.getCacheMinutes());
 		return result;
 	}
-	
+	public List<Map<String,Object>> querySql(String dbid,String sql,Map<String,String> params){
+		return querySql(SmlTools.toSqlTemplate(dbid, sql, params));
+	}
 	public int update(SqlTemplate st){
 		int result=0;
 		SqlResolvers sqlResolvers=getSqlResolvers();
@@ -143,7 +145,9 @@ public abstract class SqlMarkupAbstractTemplate extends Source implements SqlMar
 		return getJdbc(st.getDbid()).query(sqlString,paramsObject.toArray(new Object[]{}), new Rset());
 	}
 
-	
+	public Rslt queryRslt(String dbid,String sql,Map<String,String> params){
+		return queryRslt(SmlTools.toSqlTemplate(dbid, sql, params));
+	}
 
 
 	public int getCacheMinutes() {

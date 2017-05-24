@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import org.hw.sml.jdbc.JdbcTemplate;
 import org.hw.sml.model.Result;
 import org.hw.sml.report.model.Constants;
@@ -143,7 +145,15 @@ public class DelegatedSqlMarkupAbstractTemplate {
 	public int update(Map<String,String> params){
 		return sqlMarkupAbstractTemplate.getSmlContextUtils().update(params);
 	}
-	
+	public Rslt queryRslt(String dbid,String sql,Map<String,String> params){
+		return sqlMarkupAbstractTemplate.queryRslt(dbid, sql, params);
+	}
+	public List<Map<String,Object>> queryForList(String dbid,String sql,Map<String,String> params){
+		return sqlMarkupAbstractTemplate.querySql(dbid, sql, params);
+	}
+	public void registDataSource(String dbid,DataSource dataSource){
+		 sqlMarkupAbstractTemplate.getSmlContextUtils().registDataSource(dbid, dataSource);
+	}
 	
 
 
@@ -171,7 +181,7 @@ public class DelegatedSqlMarkupAbstractTemplate {
 	public JdbcTemplate getJdbc(String dbid){
 		return sqlMarkupAbstractTemplate.getJdbc(dbid);
 	}
-
+	
 	public int clear(String parameter) {
 		return sqlMarkupAbstractTemplate.getSmlContextUtils().clear(parameter);
 	}

@@ -63,6 +63,9 @@ public class SqlParams implements Serializable{
 		this.sqlParams.add(sqlParam);
 		return this;
 	}
+	public SqlParams add(String key, String value) {
+		return add(key, value,"char");
+	}
 	
 	
 }
